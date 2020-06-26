@@ -1,6 +1,6 @@
 # ballGame
 
-A new Flutter project.
+This is the Balls game
 
 ## Getting Started
 
