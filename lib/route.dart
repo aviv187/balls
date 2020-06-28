@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 class Route extends StatelessWidget {
   Route({Key key, this.path});
@@ -8,26 +7,36 @@ class Route extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var entry = path[0];
-    var exit = path[path.length - 1];
-
-    var entryWidget = Positioned(
-      top: entry.dy,
-      left: entry.dx,
-      child: Container(width: 10, height: 10, color: Colors.red),
+    return CustomPaint(
+      child: Container(),
+      painter: LinePainter(path[0], path[1]),
     );
+  }
+}
 
-    var exitWidget = Positioned(
-      top: exit.dy,
-      left: exit.dx,
-      child: Container(width: 10, height: 10, color: Colors.blue),
-    );
+class LinePainter extends CustomPainter {
+  final Offset p1;
+  final Offset p2;
 
-    return Positioned(
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
-        child: Stack(children: [entryWidget, exitWidget]));
+  LinePainter(this.p1, this.p2);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Colors.teal
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 4.0;
+
+    Path path = Path();
+    path.moveTo(p1.dx, p1.dy);
+    // path.cubicTo(p2.dx, p1.dy, p1.dx, p2.dy, p2.dx, p2.dy);
+    path.cubicTo(p1.dx, p2.dy, p2.dx, p1.dy, p2.dx, p2.dy);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
   }
 }

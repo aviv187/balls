@@ -26,11 +26,10 @@ class MyHomePage extends StatelessWidget {
         elevation: 0,
       ),
       body: SafeArea(
-        child: Board(entries: 7, exits: 8,)
-      ),
+          child: Board(
+        entries: 7,
+        exits: 8,
+      )),
     );
   }
 }
-
-
-
