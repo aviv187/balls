@@ -25,11 +25,12 @@ class MyHomePage extends StatelessWidget {
         title: Text('Game'),
         elevation: 0,
       ),
-      body: SafeArea(
-          child: Board(
-        entries: 7,
-        exits: 8,
-      )),
+      body: Container(
+        child: Board(
+          entries: 7,
+          exits: 8,
+        ),
+      ),
     );
   }
 }

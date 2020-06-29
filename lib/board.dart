@@ -9,10 +9,9 @@ class Board extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const List routesPaths = [
+    const List<List<Offset>> routesPaths = [
       [Offset(100, 100), Offset(150, 200)],
       [Offset(200, 100), Offset(150, 200)],
-      [Offset(200, 100), Offset(250, 300)],
       [Offset(300, 100), Offset(250, 300)],
       [Offset(150, 200), Offset(250, 300)],
       [Offset(150, 200), Offset(100, 400)],
