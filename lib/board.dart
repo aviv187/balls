@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 import 'routeDraw.dart' as Route;
 import './ballDraw.dart' as Ball;
 
-class Board extends StatelessWidget {
+class Board extends StatefulWidget {
   final int entries;
   final int exits;
 
   Board({this.entries, this.exits});
 
+  @override
+  _BoardState createState() => _BoardState();
+}
+
+class _BoardState extends State<Board> {
   @override
   Widget build(BuildContext context) {
     const List<Offset> enter1 = [Offset(50, 100), Offset(150, 200)];
@@ -35,6 +40,15 @@ class Board extends StatelessWidget {
       ...cross2
     ];
 
+    List<Offset> ballCurrentRoute = enter1;
+
+    void changeBallRoute() {
+      setState(() {
+        ballCurrentRoute = cross1[0];
+        print('animetion end');
+      });
+    }
+
     return Stack(
       children: <Widget>[
         Stack(
@@ -45,7 +59,8 @@ class Board extends StatelessWidget {
           }).toList(),
         ),
         Ball.BallDraw(
-          path: enter1,
+          changeBallRoute: changeBallRoute,
+          path: ballCurrentRoute,
         )
       ],
     );

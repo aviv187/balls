@@ -3,11 +3,9 @@ import 'dart:ui' as UI;
 import 'package:flutter/material.dart';
 
 class BallDraw extends StatefulWidget {
-  BallDraw({
-    Key key,
-    this.path,
-  });
+  BallDraw({Key key, this.path, this.changeBallRoute});
 
+  final Function changeBallRoute;
   final List<Offset> path;
 
   @override
@@ -15,15 +13,20 @@ class BallDraw extends StatefulWidget {
 }
 
 class _RouteState extends State<BallDraw> with TickerProviderStateMixin {
+  Animation _animation;
   AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _animation = Tween<double>(begin: 0, end: 1).animate(_controller)
+      ..addStatusListener((state) {
+        if (state == AnimationStatus.completed) {
+          widget.changeBallRoute();
+        }
+      });
 
     _controller.forward();
   }
@@ -36,7 +39,7 @@ class _RouteState extends State<BallDraw> with TickerProviderStateMixin {
           return CustomPaint(
             child: Container(),
             painter:
-                BallPainter(_controller.value, widget.path[0], widget.path[1]),
+                BallPainter(_animation.value, widget.path[0], widget.path[1]),
           );
         });
   }
