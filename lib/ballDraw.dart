@@ -2,11 +2,13 @@ import 'dart:ui' as UI;
 
 import 'package:flutter/material.dart';
 
-class BallDraw extends StatefulWidget {
-  BallDraw({Key key, this.path, this.changeBallRoute});
+import './models.dart';
 
-  final Function changeBallRoute;
-  final List<Offset> path;
+class BallDraw extends StatefulWidget {
+  BallDraw({this.ball, this.changeBallpath});
+
+  final Function changeBallpath;
+  final BallClass ball;
 
   @override
   _RouteState createState() => _RouteState();
@@ -24,10 +26,17 @@ class _RouteState extends State<BallDraw> with TickerProviderStateMixin {
     _animation = Tween<double>(begin: 0, end: 1).animate(_controller)
       ..addStatusListener((state) {
         if (state == AnimationStatus.completed) {
-          widget.changeBallRoute();
+          widget.changeBallpath(widget.ball);
         }
       });
 
+    _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(BallDraw oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _controller.reset();
     _controller.forward();
   }
 
@@ -38,8 +47,11 @@ class _RouteState extends State<BallDraw> with TickerProviderStateMixin {
         builder: (context, snapshot) {
           return CustomPaint(
             child: Container(),
-            painter:
-                BallPainter(_animation.value, widget.path[0], widget.path[1]),
+            painter: BallPainter(
+                _animation.value,
+                widget.ball.ballCurrentPath[0],
+                widget.ball.ballCurrentPath[1],
+                widget.ball.color),
           );
         });
   }
@@ -49,12 +61,13 @@ class BallPainter extends CustomPainter {
   final double value;
   final Offset p1;
   final Offset p2;
+  final Color color;
 
-  BallPainter(this.value, this.p1, this.p2);
+  BallPainter(this.value, this.p1, this.p2, this.color);
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()..color = Colors.amber;
+    Paint paint = Paint()..color = color;
 
     Path path = Path();
     path.moveTo(p1.dx, p1.dy);

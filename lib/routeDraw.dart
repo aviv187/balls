@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class RouteDraw extends StatelessWidget {
-  RouteDraw({Key key, this.path});
+  RouteDraw({this.path});
 
   final List<Offset> path;
 
