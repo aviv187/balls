@@ -1,32 +1,36 @@
-import 'dart:ui' as UI;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import './models.dart';
+class Ball extends StatefulWidget {
+  Ball({Key key, this.onRouteCompleted, this.color, this.path})
+      : super(key: key);
 
-class BallDraw extends StatefulWidget {
-  BallDraw({this.ball, this.changeBallpath});
-
-  final Function changeBallpath;
-  final BallClass ball;
+  final Function onRouteCompleted;
+  final Color color;
+  final List<Offset> path;
 
   @override
   _RouteState createState() => _RouteState();
 }
 
-class _RouteState extends State<BallDraw> with TickerProviderStateMixin {
+class _RouteState extends State<Ball> with TickerProviderStateMixin {
   Animation _animation;
   AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2));
+
+    int duration =
+        getBallLength(getBallPath(widget.path[0], widget.path[1])).ceil() * 10;
+
+    _controller = AnimationController(
+        vsync: this, duration: Duration(milliseconds: duration));
     _animation = Tween<double>(begin: 0, end: 1).animate(_controller)
       ..addStatusListener((state) {
         if (state == AnimationStatus.completed) {
-          widget.changeBallpath(widget.ball);
+          widget.onRouteCompleted(widget.key, widget.path);
         }
       });
 
@@ -34,10 +38,21 @@ class _RouteState extends State<BallDraw> with TickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(BallDraw oldWidget) {
+  void didUpdateWidget(Ball oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _controller.reset();
-    _controller.forward();
+    if (oldWidget.path != widget.path) {
+      _controller.reset();
+      _controller.forward();
+    }
+  }
+
+  double getBallLength(Path path) {
+    PathMetrics pathMetrics = path.computeMetrics();
+    double length;
+    for (PathMetric pathMetric in pathMetrics) {
+      length = pathMetric.length;
+    }
+    return length;
   }
 
   @override
@@ -48,13 +63,22 @@ class _RouteState extends State<BallDraw> with TickerProviderStateMixin {
           return CustomPaint(
             child: Container(),
             painter: BallPainter(
-                _animation.value,
-                widget.ball.ballCurrentPath[0],
-                widget.ball.ballCurrentPath[1],
-                widget.ball.color),
+              _animation.value,
+              widget.path[0],
+              widget.path[1],
+              widget.color,
+            ),
           );
         });
   }
+}
+
+Path getBallPath(Offset p1, Offset p2) {
+  Path path = Path();
+  path.moveTo(p1.dx, p1.dy);
+  path.cubicTo(p1.dx, p2.dy, p2.dx, p1.dy, p2.dx, p2.dy);
+
+  return path;
 }
 
 class BallPainter extends CustomPainter {
@@ -69,17 +93,12 @@ class BallPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()..color = color;
 
-    Path path = Path();
-    path.moveTo(p1.dx, p1.dy);
-    // path.cubicTo(p2.dx, p1.dy, p1.dx, p2.dy, p2.dx, p2.dy);
-    path.cubicTo(p1.dx, p2.dy, p2.dx, p1.dy, p2.dx, p2.dy);
-
-    drawAxis(value, canvas, paint, path);
+    drawAxis(value, canvas, paint, getBallPath(p1, p2));
   }
 
   drawAxis(double value, Canvas canvas, Paint paintBall, Path path1) {
-    UI.PathMetrics pathMetrics = path1.computeMetrics();
-    for (UI.PathMetric pathMetric in pathMetrics) {
+    PathMetrics pathMetrics = path1.computeMetrics();
+    for (PathMetric pathMetric in pathMetrics) {
       Path extractPath = pathMetric.extractPath(
         0.0,
         pathMetric.length * value,

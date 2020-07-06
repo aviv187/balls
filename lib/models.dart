@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class BallClass {
-  final key = UniqueKey(); // לא בטוחה שבאמת צריך את זה
   final Color color;
-  List<Offset> ballCurrentPath;
+  final Key key;
+  List<Offset> path;
 
-  BallClass({this.color, this.ballCurrentPath});
+  BallClass({this.color, this.path, this.key});
 }

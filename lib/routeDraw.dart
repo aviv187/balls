@@ -30,7 +30,6 @@ class RoutePainter extends CustomPainter {
 
     Path path = Path();
     path.moveTo(p1.dx, p1.dy);
-    // path.cubicTo(p2.dx, p1.dy, p1.dx, p2.dy, p2.dx, p2.dy);
     path.cubicTo(p1.dx, p2.dy, p2.dx, p1.dy, p2.dx, p2.dy);
     canvas.drawPath(path, paint);
   }

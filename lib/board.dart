@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import './routeDraw.dart' as Route;
-import './ballDraw.dart' as Ball;
+import './ball.dart';
 import './models.dart';
 
 const List<Offset> enter1 = [Offset(50, 100), Offset(150, 200)];
@@ -22,17 +22,7 @@ List<List<Offset>> cross2 = [
   [Offset(250, 300), Offset(350, 400)]
 ];
 
-List<BallClass> ballList = [
-  // BallClass(color: Colors.amber, ballCurrentPath: enter1),
-  // BallClass(color: Colors.pink, ballCurrentPath: enter2),
-];
-
 class Board extends StatefulWidget {
-  final int entries;
-  final int exits;
-
-  Board({this.entries, this.exits});
-
   @override
   _BoardState createState() => _BoardState();
 }
@@ -46,17 +36,19 @@ class _BoardState extends State<Board> {
     ...cross2
   ];
 
-  void changeBallRoute(BallClass ball) {
-    int index = ballList.indexOf(ball);
-    if (ball.ballCurrentPath[1] == Offset(150, 200)) {
+  List<BallClass> ballsList = [];
+
+  void changeBallRoute(Key key, List<Offset> path) {
+    int index = ballsList.indexWhere((b) => b.key == key);
+    if (path[1] == cross1[0][0]) {
       setState(() {
-        ballList[index].ballCurrentPath = cross1[0];
+        ballsList[index].path = cross1[0];
         cross1.add(cross1[0]);
         cross1.removeAt(0);
       });
-    } else if (ball.ballCurrentPath[1] == Offset(250, 300)) {
+    } else if (path[1] == cross2[0][0]) {
       setState(() {
-        ballList[index].ballCurrentPath = cross2[0];
+        ballsList[index].path = cross2[0];
         cross2.add(cross2[0]);
         cross2.removeAt(0);
       });
@@ -65,13 +57,13 @@ class _BoardState extends State<Board> {
         Random number = Random();
         switch (number.nextInt(3)) {
           case 0:
-            ballList[index].ballCurrentPath = enter1;
+            ballsList[index].path = enter1;
             break;
           case 1:
-            ballList[index].ballCurrentPath = enter2;
+            ballsList[index].path = enter2;
             break;
           case 2:
-            ballList[index].ballCurrentPath = enter3;
+            ballsList[index].path = enter3;
             break;
           default:
         }
@@ -79,66 +71,74 @@ class _BoardState extends State<Board> {
     }
   }
 
+  void _addBall() {
+    Random number = Random();
+    Color color;
+    switch (number.nextInt(8)) {
+      case 0:
+        color = Colors.orangeAccent;
+        break;
+      case 1:
+        color = Colors.pink;
+        break;
+      case 2:
+        color = Colors.yellow;
+        break;
+      case 3:
+        color = Colors.green;
+        break;
+      case 4:
+        color = Colors.indigo;
+        break;
+      case 5:
+        color = Colors.purple;
+        break;
+      case 6:
+        color = Colors.red;
+        break;
+      case 7:
+        color = Colors.cyan;
+        break;
+      default:
+        color = Colors.indigo;
+    }
+
+    setState(() {
+      ballsList.add(BallClass(path: enter3, color: color, key: UniqueKey()));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
         Stack(
-          children: routesPaths.map((path) {
-            return Route.RouteDraw(
-              path: path,
-            );
-          }).toList(),
+          children: routesPaths
+              .map(
+                (path) => Route.RouteDraw(
+                  path: path,
+                ),
+              )
+              .toList(),
         ),
         Stack(
-          children: ballList.map((ball) {
-            return Ball.BallDraw(
-              changeBallpath: changeBallRoute,
-              ball: ball,
-            );
-          }).toList(),
+          children: ballsList
+              .map(
+                (ball) => Ball(
+                  key: ball.key,
+                  onRouteCompleted: changeBallRoute,
+                  color: ball.color,
+                  path: ball.path,
+                ),
+              )
+              .toList(),
         ),
         Positioned(
           bottom: 30,
           right: 20,
           child: FloatingActionButton.extended(
             elevation: 0,
-            onPressed: () {
-              Random number = Random();
-              Color color;
-              switch (number.nextInt(8)) {
-                case 0:
-                  color = Colors.orangeAccent;
-                  break;
-                case 1:
-                  color = Colors.pink;
-                  break;
-                case 2:
-                  color = Colors.yellow;
-                  break;
-                case 3:
-                  color = Colors.green;
-                  break;
-                case 4:
-                  color = Colors.indigo;
-                  break;
-                case 5:
-                  color = Colors.purple;
-                  break;
-                case 6:
-                  color = Colors.red;
-                  break;
-                case 7:
-                  color = Colors.cyan;
-                  break;
-                default:
-                  color = Colors.indigo;
-              }
-
-              setState(() {
-                ballList.add(BallClass(ballCurrentPath: enter1, color: color));
-              });
-            },
+            onPressed: _addBall,
             label: Text('New Ball'),
             backgroundColor: Colors.pink,
           ),

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter/scheduler.dart' show timeDilation;
 
 import './board.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  //timeDilation = 0.5;
+
+  return runApp(MyApp());
+}
+
+//void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
@@ -25,12 +32,7 @@ class MyHomePage extends StatelessWidget {
         title: Text('Game'),
         elevation: 0,
       ),
-      body: Container(
-        child: Board(
-          entries: 7,
-          exits: 8,
-        ),
-      ),
+      body: Board(),
     );
   }
 }
