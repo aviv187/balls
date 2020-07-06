@@ -18,15 +18,17 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
   Animation _animation;
   AnimationController _controller;
 
+  int _duration;
+
   @override
   void initState() {
     super.initState();
 
-    int duration =
+    _duration =
         getBallLength(getBallPath(widget.path[0], widget.path[1])).ceil() * 10;
 
     _controller = AnimationController(
-        vsync: this, duration: Duration(milliseconds: duration));
+        vsync: this, duration: Duration(milliseconds: _duration));
     _animation = Tween<double>(begin: 0, end: 1).animate(_controller)
       ..addStatusListener((state) {
         if (state == AnimationStatus.completed) {
@@ -41,8 +43,15 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
   void didUpdateWidget(Ball oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.path != widget.path) {
-      _controller.reset();
-      _controller.forward();
+      setState(() {
+        _duration =
+            getBallLength(getBallPath(widget.path[0], widget.path[1])).ceil() *
+                10;
+        _controller.duration = Duration(milliseconds: _duration);
+
+        _controller.reset();
+        _controller.forward();
+      });
     }
   }
 

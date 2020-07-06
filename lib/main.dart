@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter/scheduler.dart' show timeDilation;
+import 'package:flutter/scheduler.dart' show timeDilation;
 
 import './board.dart';
 
 void main() {
-  //timeDilation = 0.5;
+  timeDilation = 2;
 
   return runApp(MyApp());
 }
