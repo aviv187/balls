@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart' show timeDilation;
 
 import './board.dart';
 
-void main() {
-  timeDilation = 2;
-
-  return runApp(MyApp());
-}
-
-//void main() => runApp(MyApp());
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override

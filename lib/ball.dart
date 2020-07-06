@@ -25,11 +25,12 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
     super.initState();
 
     _duration =
-        getBallLength(getBallPath(widget.path[0], widget.path[1])).ceil() * 10;
+        (getBallLength(getBallPath(widget.path[0], widget.path[1])) * 10)
+            .ceil();
 
     _controller = AnimationController(
         vsync: this, duration: Duration(milliseconds: _duration));
-    _animation = Tween<double>(begin: 0, end: 1).animate(_controller)
+    _animation = Tween<double>(begin: 0.00001, end: 0.9999).animate(_controller)
       ..addStatusListener((state) {
         if (state == AnimationStatus.completed) {
           widget.onRouteCompleted(widget.key, widget.path);
@@ -43,15 +44,13 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
   void didUpdateWidget(Ball oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.path != widget.path) {
-      setState(() {
-        _duration =
-            getBallLength(getBallPath(widget.path[0], widget.path[1])).ceil() *
-                10;
-        _controller.duration = Duration(milliseconds: _duration);
+      _duration =
+          (getBallLength(getBallPath(widget.path[0], widget.path[1])) * 10)
+              .ceil();
+      _controller.duration = Duration(milliseconds: _duration);
 
-        _controller.reset();
-        _controller.forward();
-      });
+      _controller.reset();
+      _controller.forward();
     }
   }
 
