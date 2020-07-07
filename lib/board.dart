@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import './routeDraw.dart' as Route;
@@ -28,12 +26,18 @@ class Board extends StatefulWidget {
 }
 
 class _BoardState extends State<Board> {
-  final List<List<Offset>> routesPaths = [
+  final List<List<Offset>> allPaths = [
     enter1,
     enter2,
     enter3,
     ...cross1,
     ...cross2
+  ];
+
+  final List<List<Offset>> enterPaths = [
+    enter1,
+    enter2,
+    enter3,
   ];
 
   List<BallClass> ballsList = [];
@@ -53,58 +57,18 @@ class _BoardState extends State<Board> {
         cross2.removeAt(0);
       });
     } else {
-      setState(() {
-        Random number = Random();
-        switch (number.nextInt(3)) {
-          case 0:
-            ballsList[index].path = enter1;
-            break;
-          case 1:
-            ballsList[index].path = enter2;
-            break;
-          case 2:
-            ballsList[index].path = enter3;
-            break;
-          default:
-        }
-      });
+      // handle ball droping
     }
   }
 
-  void _addBall() {
-    Random number = Random();
-    Color color;
-    switch (number.nextInt(8)) {
-      case 0:
-        color = Colors.orangeAccent;
-        break;
-      case 1:
-        color = Colors.pink;
-        break;
-      case 2:
-        color = Colors.yellow;
-        break;
-      case 3:
-        color = Colors.green;
-        break;
-      case 4:
-        color = Colors.indigo;
-        break;
-      case 5:
-        color = Colors.purple;
-        break;
-      case 6:
-        color = Colors.red;
-        break;
-      case 7:
-        color = Colors.cyan;
-        break;
-      default:
-        color = Colors.indigo;
-    }
-
+  void _addBall(List<Offset> enter, Color color, int speed) {
     setState(() {
-      ballsList.add(BallClass(path: enter3, color: color, key: UniqueKey()));
+      ballsList.add(BallClass(
+        path: enter,
+        color: color,
+        speed: speed,
+        key: UniqueKey(),
+      ));
     });
   }
 
@@ -113,7 +77,7 @@ class _BoardState extends State<Board> {
     return Stack(
       children: <Widget>[
         Stack(
-          children: routesPaths
+          children: allPaths
               .map(
                 (path) => Route.RouteDraw(
                   path: path,
@@ -128,22 +92,123 @@ class _BoardState extends State<Board> {
                   key: ball.key,
                   onRouteCompleted: changeBallRoute,
                   color: ball.color,
+                  speed: ball.speed,
                   path: ball.path,
                 ),
               )
               .toList(),
         ),
-        Positioned(
-          bottom: 30,
-          right: 20,
-          child: FloatingActionButton.extended(
-            elevation: 0,
-            onPressed: _addBall,
-            label: Text('New Ball'),
-            backgroundColor: Colors.pink,
-          ),
+        Stack(
+          children: enterPaths
+              .map(
+                (enter) => Positioned(
+                  left: enter[0].dx - 10,
+                  top: enter[0].dy - 10,
+                  child: DragTarget(
+                    builder:
+                        (context, List<String> candidateData, rejectedData) {
+                      return Container(
+                        height: 20,
+                        width: 20,
+                      );
+                    },
+                    onWillAccept: (d) {
+                      return true;
+                    },
+                    onAccept: (d) {
+                      _addBall(
+                        enter,
+                        nextBall.color,
+                        nextBall.speed,
+                      );
+                    },
+                  ),
+                ),
+              )
+              .toList(),
         ),
+        Positioned(
+            top: 20,
+            left: 20,
+            child: Row(children: <Widget>[
+              Container(
+                child: Text(
+                  'New Ball',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Draggable(
+                child: DragBall(),
+                feedback: DragBall(),
+                childWhenDragging: Container(),
+                onDragCompleted: () {
+                  changeNewBall(nextBall.speed);
+                },
+                data: 'Ball',
+              ),
+            ])),
       ],
+    );
+  }
+}
+
+NextBall nextBall = NextBall(
+  color: Colors.red,
+  speed: 20,
+);
+
+void changeNewBall(int speed) {
+  switch (speed) {
+    case 20:
+      nextBall.color = Colors.orangeAccent.shade700;
+      nextBall.speed = 18;
+      break;
+    case 18:
+      nextBall.color = Colors.yellow;
+      nextBall.speed = 16;
+      break;
+    case 16:
+      nextBall.color = Colors.greenAccent.shade700;
+      nextBall.speed = 14;
+      break;
+    case 14:
+      nextBall.color = Colors.blue.shade400;
+      nextBall.speed = 12;
+      break;
+    case 12:
+      nextBall.color = Colors.deepPurple.shade400;
+      nextBall.speed = 10;
+      break;
+    case 10:
+      nextBall.color = Colors.pink.shade300;
+      nextBall.speed = 8;
+      break;
+    case 8:
+      nextBall.color = Colors.red;
+      nextBall.speed = 20;
+      break;
+    default:
+      nextBall.color = Colors.red;
+      nextBall.speed = 20;
+  }
+}
+
+class DragBall extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 16,
+      height: 16,
+      decoration: BoxDecoration(
+        color: nextBall.color,
+        shape: BoxShape.circle,
+      ),
     );
   }
 }
