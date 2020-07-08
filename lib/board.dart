@@ -26,6 +26,8 @@ class Board extends StatefulWidget {
 }
 
 class _BoardState extends State<Board> {
+  bool gameOver = false;
+
   final List<List<Offset>> allPaths = [
     enter1,
     enter2,
@@ -40,30 +42,82 @@ class _BoardState extends State<Board> {
     enter3,
   ];
 
-  List<BallClass> ballsList = [];
+  List<List<List<Offset>>> crossesPaths = [
+    cross1,
+    cross2,
+  ];
+
+  List<BallClass> balls = [];
+  List<BallClass> dropBalls = [];
+
+  BallClass nextNewBall = BallClass(
+    color: Colors.red,
+    speed: 26,
+  );
+
+  void changeNewBall(int speed) {
+    switch (speed) {
+      case 26:
+        nextNewBall.color = Colors.orangeAccent.shade700;
+        nextNewBall.speed = 24;
+        break;
+      case 24:
+        nextNewBall.color = Colors.yellow;
+        nextNewBall.speed = 22;
+        break;
+      case 22:
+        nextNewBall.color = Colors.greenAccent.shade700;
+        nextNewBall.speed = 20;
+        break;
+      case 20:
+        nextNewBall.color = Colors.blue.shade400;
+        nextNewBall.speed = 18;
+        break;
+      case 18:
+        nextNewBall.color = Colors.deepPurple.shade400;
+        nextNewBall.speed = 16;
+        break;
+      case 16:
+        nextNewBall.color = Colors.pink.shade300;
+        nextNewBall.speed = 14;
+        break;
+      case 14:
+        nextNewBall.color = Colors.red;
+        nextNewBall.speed = 26;
+        break;
+      default:
+        nextNewBall.color = Colors.red;
+        nextNewBall.speed = 26;
+    }
+  }
 
   void changeBallRoute(Key key, List<Offset> path) {
-    int index = ballsList.indexWhere((b) => b.key == key);
-    if (path[1] == cross1[0][0]) {
-      setState(() {
-        ballsList[index].path = cross1[0];
-        cross1.add(cross1[0]);
-        cross1.removeAt(0);
-      });
-    } else if (path[1] == cross2[0][0]) {
-      setState(() {
-        ballsList[index].path = cross2[0];
-        cross2.add(cross2[0]);
-        cross2.removeAt(0);
-      });
-    } else {
-      // handle ball droping
+    int index = balls.indexWhere((b) => b.key == key);
+
+    for (int i = 0; i < crossesPaths.length; i++) {
+      if (path[1] == crossesPaths[i][0][0]) {
+        setState(() {
+          balls[index].path = crossesPaths[i][0];
+          crossesPaths[i].add(crossesPaths[i][0]);
+          crossesPaths[i].removeAt(0);
+        });
+        return;
+      }
     }
+
+    setState(() {
+      dropBalls.add(balls[index]);
+      balls.removeAt(index);
+
+      if (dropBalls.length == 3) {
+        gameOver = true;
+      }
+    });
   }
 
   void _addBall(List<Offset> enter, Color color, int speed) {
     setState(() {
-      ballsList.add(BallClass(
+      balls.add(BallClass(
         path: enter,
         color: color,
         speed: speed,
@@ -72,10 +126,25 @@ class _BoardState extends State<Board> {
     });
   }
 
+  void restartGame() {
+    setState(() {
+      balls = [];
+      dropBalls = [];
+
+      nextNewBall = BallClass(
+        color: Colors.red,
+        speed: 26,
+      );
+
+      gameOver = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
+        // draw all paths
         Stack(
           children: allPaths
               .map(
@@ -85,8 +154,9 @@ class _BoardState extends State<Board> {
               )
               .toList(),
         ),
+        // draw all the movig balls
         Stack(
-          children: ballsList
+          children: balls
               .map(
                 (ball) => Ball(
                   key: ball.key,
@@ -94,39 +164,24 @@ class _BoardState extends State<Board> {
                   color: ball.color,
                   speed: ball.speed,
                   path: ball.path,
+                  gameOver: gameOver,
                 ),
               )
               .toList(),
         ),
+        //draw all the movable droped balls
         Stack(
-          children: enterPaths
+          children: dropBalls
               .map(
-                (enter) => Positioned(
-                  left: enter[0].dx - 10,
-                  top: enter[0].dy - 10,
-                  child: DragTarget(
-                    builder:
-                        (context, List<String> candidateData, rejectedData) {
-                      return Container(
-                        height: 20,
-                        width: 20,
-                      );
-                    },
-                    onWillAccept: (d) {
-                      return true;
-                    },
-                    onAccept: (d) {
-                      _addBall(
-                        enter,
-                        nextBall.color,
-                        nextBall.speed,
-                      );
-                    },
-                  ),
+                (ball) => Positioned(
+                  top: ball.path[1].dy - 10,
+                  left: ball.path[1].dx - 10,
+                  child: DragBall(ball, () => dropBalls.remove(ball)),
                 ),
               )
               .toList(),
         ),
+        // draw new drgable ball
         Positioned(
             top: 20,
             left: 20,
@@ -143,72 +198,136 @@ class _BoardState extends State<Board> {
               SizedBox(
                 width: 10,
               ),
-              Draggable(
-                child: DragBall(),
-                feedback: DragBall(),
-                childWhenDragging: Container(),
-                onDragCompleted: () {
-                  changeNewBall(nextBall.speed);
-                },
-                data: 'Ball',
-              ),
+              DragBall(nextNewBall, () => changeNewBall(nextNewBall.speed)),
             ])),
+        // drop places widget
+        Stack(
+          children: enterPaths
+              .map(
+                (enter) => Positioned(
+                  left: enter[0].dx - 25,
+                  top: enter[0].dy - 25,
+                  child: DragTarget<BallClass>(
+                    builder: (BuildContext context,
+                        List<BallClass> candidateData,
+                        List<dynamic> rejectedData) {
+                      return Container(
+                        height: 50,
+                        width: 50,
+                      );
+                    },
+                    onWillAccept: (BallClass ball) {
+                      return true;
+                    },
+                    onAccept: (BallClass ball) {
+                      _addBall(
+                        enter,
+                        ball.color,
+                        ball.speed,
+                      );
+                      return true;
+                    },
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 200),
+          child: GameOverButton(gameOver, restartGame),
+        ),
       ],
     );
   }
 }
 
-NextBall nextBall = NextBall(
-  color: Colors.red,
-  speed: 20,
-);
+class GameOverButton extends StatelessWidget {
+  final bool gameOver;
+  final Function restartGame;
 
-void changeNewBall(int speed) {
-  switch (speed) {
-    case 20:
-      nextBall.color = Colors.orangeAccent.shade700;
-      nextBall.speed = 18;
-      break;
-    case 18:
-      nextBall.color = Colors.yellow;
-      nextBall.speed = 16;
-      break;
-    case 16:
-      nextBall.color = Colors.greenAccent.shade700;
-      nextBall.speed = 14;
-      break;
-    case 14:
-      nextBall.color = Colors.blue.shade400;
-      nextBall.speed = 12;
-      break;
-    case 12:
-      nextBall.color = Colors.deepPurple.shade400;
-      nextBall.speed = 10;
-      break;
-    case 10:
-      nextBall.color = Colors.pink.shade300;
-      nextBall.speed = 8;
-      break;
-    case 8:
-      nextBall.color = Colors.red;
-      nextBall.speed = 20;
-      break;
-    default:
-      nextBall.color = Colors.red;
-      nextBall.speed = 20;
+  GameOverButton(this.gameOver, this.restartGame);
+
+  @override
+  Widget build(BuildContext context) {
+    double opacity = 1;
+    if (!gameOver) {
+      opacity = 0;
+    }
+
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 500),
+      opacity: opacity,
+      child: Center(
+        child: Column(
+          children: <Widget>[
+            Text(
+              'Game Over',
+              style: TextStyle(
+                fontSize: 50,
+                fontWeight: FontWeight.bold,
+                color: Colors.red.shade600,
+              ),
+            ),
+            SizedBox(height: 20),
+            FlatButton(
+              padding: EdgeInsets.all(0),
+              highlightColor: Colors.blueGrey,
+              child: Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  color: Colors.blueGrey.withOpacity(0.75),
+                ),
+                child: Text(
+                  'Play Again',
+                  style: TextStyle(
+                    fontSize: 25,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              onPressed: () {
+                if (gameOver) {
+                  restartGame();
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
 class DragBall extends StatelessWidget {
+  final BallClass ball;
+  final Function disposeOfTheBall;
+
+  DragBall(this.ball, this.disposeOfTheBall);
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 16,
-      height: 16,
-      decoration: BoxDecoration(
-        color: nextBall.color,
-        shape: BoxShape.circle,
+    return Draggable<BallClass>(
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          color: ball.color,
+          shape: BoxShape.circle,
+        ),
       ),
+      feedback: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          color: ball.color,
+          shape: BoxShape.circle,
+        ),
+      ),
+      childWhenDragging: Container(),
+      onDragCompleted: () {
+        disposeOfTheBall();
+      },
+      data: ball,
     );
   }
 }

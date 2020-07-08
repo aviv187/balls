@@ -22,7 +22,10 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Game'),
+        title: Text(
+          'Game',
+          textAlign: TextAlign.center,
+        ),
         elevation: 0,
       ),
       body: Board(),

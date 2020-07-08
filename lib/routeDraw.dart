@@ -23,14 +23,15 @@ class RoutePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = Colors.blueGrey
+      ..color = Colors.blueGrey.shade300
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 4.0;
+      ..strokeWidth = 4;
 
     Path path = Path();
     path.moveTo(p1.dx, p1.dy);
     path.cubicTo(p1.dx, p2.dy, p2.dx, p1.dy, p2.dx, p2.dy);
+
     canvas.drawPath(path, paint);
   }
 

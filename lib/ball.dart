@@ -9,12 +9,14 @@ class Ball extends StatefulWidget {
     this.color,
     this.path,
     this.speed,
+    this.gameOver,
   }) : super(key: key);
 
   final Function onRouteCompleted;
   final Color color;
   final List<Offset> path;
   final int speed;
+  final bool gameOver;
 
   @override
   _RouteState createState() => _RouteState();
@@ -44,6 +46,10 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
       });
 
     _controller.forward();
+
+    if (widget.gameOver == true) {
+      _controller.stop();
+    }
   }
 
   @override
@@ -57,6 +63,10 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
 
       _controller.reset();
       _controller.forward();
+    }
+
+    if (widget.gameOver == true) {
+      _controller.stop();
     }
   }
 
@@ -121,7 +131,7 @@ class BallPainter extends CustomPainter {
       final PathMetric metric = extractPath.computeMetrics().first;
       Offset offset = metric.getTangentForOffset(metric.length).position;
 
-      canvas.drawCircle(offset, 8, paintBall);
+      canvas.drawCircle(offset, 10, paintBall);
     }
   }
 
