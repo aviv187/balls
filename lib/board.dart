@@ -1,23 +1,38 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import './routeDraw.dart' as Route;
 import './ball.dart';
 import './models.dart';
+import './dragBall.dart';
+import './gameOverButton.dart';
 
-const List<Offset> enter1 = [Offset(50, 100), Offset(150, 200)];
-const List<Offset> enter2 = [Offset(200, 100), Offset(150, 200)];
-const List<Offset> enter3 = [Offset(300, 100), Offset(250, 300)];
+const List<Offset> enter1 = [Offset(50, 80), Offset(80, 200)];
+const List<Offset> enter2 = [Offset(100, 80), Offset(80, 200)];
+const List<Offset> enter3 = [Offset(150, 80), Offset(180, 150)];
+const List<Offset> enter4 = [Offset(200, 80), Offset(180, 150)];
+const List<Offset> enter5 = [Offset(250, 80), Offset(270, 280)];
+const List<Offset> enter6 = [Offset(300, 80), Offset(270, 280)];
 List<List<Offset>> cross1 = [
-  [Offset(150, 200), Offset(250, 300)],
-  [Offset(150, 200), Offset(50, 400)],
-  [Offset(150, 200), Offset(150, 400)],
-  [Offset(150, 200), Offset(200, 400)]
+  [Offset(180, 150), Offset(80, 200)],
+  [Offset(180, 150), Offset(270, 280)],
+  [Offset(180, 150), Offset(140, 320)],
 ];
 List<List<Offset>> cross2 = [
-  [Offset(250, 300), Offset(200, 400)],
-  [Offset(250, 300), Offset(250, 400)],
-  [Offset(250, 300), Offset(300, 400)],
-  [Offset(250, 300), Offset(350, 400)]
+  [Offset(80, 200), Offset(140, 320)],
+  [Offset(80, 200), Offset(40, 420)],
+  [Offset(80, 200), Offset(100, 420)],
+];
+List<List<Offset>> cross3 = [
+  [Offset(270, 280), Offset(140, 320)],
+  [Offset(270, 280), Offset(250, 420)],
+  [Offset(270, 280), Offset(300, 420)],
+];
+List<List<Offset>> cross4 = [
+  [Offset(140, 320), Offset(100, 420)],
+  [Offset(140, 320), Offset(170, 420)],
+  [Offset(140, 320), Offset(250, 420)],
 ];
 
 class Board extends StatefulWidget {
@@ -32,19 +47,29 @@ class _BoardState extends State<Board> {
     enter1,
     enter2,
     enter3,
+    enter4,
+    enter5,
+    enter6,
     ...cross1,
-    ...cross2
+    ...cross2,
+    ...cross3,
+    ...cross4,
   ];
 
   final List<List<Offset>> enterPaths = [
     enter1,
     enter2,
     enter3,
+    enter4,
+    enter5,
+    enter6,
   ];
 
   List<List<List<Offset>>> crossesPaths = [
     cross1,
     cross2,
+    cross3,
+    cross4,
   ];
 
   List<BallClass> balls = [];
@@ -55,7 +80,74 @@ class _BoardState extends State<Board> {
     speed: 26,
   );
 
+  Timer timer;
+  int _newBallTime = 5;
+  int _currentNewBallTime;
+
+  Timer timer2;
+  int _timeToDropBall;
+  bool droped;
+
+  // timer for new ball dropping
+  void newBallTimer(int startTime) {
+    _currentNewBallTime = startTime;
+    const oneSec = const Duration(seconds: 1);
+    timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) => setState(
+        () {
+          if (_currentNewBallTime == 1) {
+            timer.cancel();
+            _currentNewBallTime = null;
+            dropBallTimer();
+          } else {
+            _currentNewBallTime = _currentNewBallTime - 1;
+          }
+        },
+      ),
+    );
+  }
+
+  // timer for the user to drop the ball
+  void dropBallTimer() {
+    _timeToDropBall = 5;
+    droped = false;
+    const oneSec = const Duration(seconds: 1);
+    timer2 = new Timer.periodic(
+      oneSec,
+      (Timer timer) => setState(
+        () {
+          if (_timeToDropBall == 1) {
+            timer.cancel();
+            _timeToDropBall = null;
+
+            if (!droped) {
+              gameOver = true;
+            }
+          } else {
+            _timeToDropBall = _timeToDropBall - 1;
+          }
+        },
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    timer2.cancel();
+    super.dispose();
+  }
+
   void changeNewBall(int speed) {
+    newBallTimer(_newBallTime);
+
+    if (_newBallTime < 60) {
+      _newBallTime += 5;
+    }
+
+    droped = true;
+
     switch (speed) {
       case 26:
         nextNewBall.color = Colors.orangeAccent.shade700;
@@ -136,6 +228,9 @@ class _BoardState extends State<Board> {
         speed: 26,
       );
 
+      _newBallTime = 5;
+      _currentNewBallTime = null;
+
       gameOver = false;
     });
   }
@@ -176,30 +271,36 @@ class _BoardState extends State<Board> {
                 (ball) => Positioned(
                   top: ball.path[1].dy - 10,
                   left: ball.path[1].dx - 10,
-                  child: DragBall(ball, () => dropBalls.remove(ball)),
+                  child: DragBall(
+                    ball,
+                    () => dropBalls.remove(ball),
+                    null,
+                  ),
                 ),
               )
               .toList(),
         ),
         // draw new drgable ball
         Positioned(
-            top: 20,
-            left: 20,
-            child: Row(children: <Widget>[
-              Container(
-                child: Text(
-                  'New Ball',
+          top: 20,
+          left: 20,
+          child: (_currentNewBallTime != null)
+              ? Text(
+                  'new ball in $_currentNewBallTime',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(left: 20),
+                  child: DragBall(
+                    nextNewBall,
+                    () => changeNewBall(nextNewBall.speed),
+                    _timeToDropBall,
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              DragBall(nextNewBall, () => changeNewBall(nextNewBall.speed)),
-            ])),
+        ),
         // drop places widget
         Stack(
           children: enterPaths
@@ -237,97 +338,6 @@ class _BoardState extends State<Board> {
           child: GameOverButton(gameOver, restartGame),
         ),
       ],
-    );
-  }
-}
-
-class GameOverButton extends StatelessWidget {
-  final bool gameOver;
-  final Function restartGame;
-
-  GameOverButton(this.gameOver, this.restartGame);
-
-  @override
-  Widget build(BuildContext context) {
-    double opacity = 1;
-    if (!gameOver) {
-      opacity = 0;
-    }
-
-    return AnimatedOpacity(
-      duration: Duration(milliseconds: 500),
-      opacity: opacity,
-      child: Center(
-        child: Column(
-          children: <Widget>[
-            Text(
-              'Game Over',
-              style: TextStyle(
-                fontSize: 50,
-                fontWeight: FontWeight.bold,
-                color: Colors.red.shade600,
-              ),
-            ),
-            SizedBox(height: 20),
-            FlatButton(
-              padding: EdgeInsets.all(0),
-              highlightColor: Colors.blueGrey,
-              child: Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  color: Colors.blueGrey.withOpacity(0.75),
-                ),
-                child: Text(
-                  'Play Again',
-                  style: TextStyle(
-                    fontSize: 25,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              onPressed: () {
-                if (gameOver) {
-                  restartGame();
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class DragBall extends StatelessWidget {
-  final BallClass ball;
-  final Function disposeOfTheBall;
-
-  DragBall(this.ball, this.disposeOfTheBall);
-  @override
-  Widget build(BuildContext context) {
-    return Draggable<BallClass>(
-      child: Container(
-        width: 20,
-        height: 20,
-        decoration: BoxDecoration(
-          color: ball.color,
-          shape: BoxShape.circle,
-        ),
-      ),
-      feedback: Container(
-        width: 20,
-        height: 20,
-        decoration: BoxDecoration(
-          color: ball.color,
-          shape: BoxShape.circle,
-        ),
-      ),
-      childWhenDragging: Container(),
-      onDragCompleted: () {
-        disposeOfTheBall();
-      },
-      data: ball,
     );
   }
 }

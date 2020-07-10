@@ -24,7 +24,6 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Game',
-          textAlign: TextAlign.center,
         ),
         elevation: 0,
       ),
