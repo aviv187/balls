@@ -268,39 +268,36 @@ class _BoardState extends State<Board> {
         Stack(
           children: dropBalls
               .map(
-                (ball) => Positioned(
-                  top: ball.path[1].dy - 10,
-                  left: ball.path[1].dx - 10,
-                  child: DragBall(
-                    ball,
-                    () => dropBalls.remove(ball),
-                    null,
-                  ),
+                (ball) => DragBall(
+                  ball: ball,
+                  disposeOfTheBall: () => dropBalls.remove(ball),
+                  ballDropTime: null,
+                  positionFromTop: ball.path[1].dy - 10,
+                  positionFromLeft: ball.path[1].dx - 10,
                 ),
               )
               .toList(),
         ),
         // draw new drgable ball
-        Positioned(
-          top: 20,
-          left: 20,
-          child: (_currentNewBallTime != null)
-              ? Text(
+        (_currentNewBallTime != null)
+            ? Positioned(
+                top: 20,
+                left: 20,
+                child: Text(
                   'new ball in $_currentNewBallTime',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: DragBall(
-                    nextNewBall,
-                    () => changeNewBall(nextNewBall.speed),
-                    _timeToDropBall,
-                  ),
                 ),
-        ),
+              )
+            : DragBall(
+                ball: nextNewBall,
+                disposeOfTheBall: () => changeNewBall(nextNewBall.speed),
+                ballDropTime: _timeToDropBall,
+                positionFromTop: 20,
+                positionFromLeft: 20,
+              ),
         // drop places widget
         Stack(
           children: enterPaths
