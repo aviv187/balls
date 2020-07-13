@@ -20,6 +20,8 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -27,7 +29,10 @@ class MyHomePage extends StatelessWidget {
         ),
         elevation: 0,
       ),
-      body: Board(),
+      body: Board(
+        height: screenSize.width * 1.75,
+        witdh: screenSize.width,
+      ),
     );
   }
 }

@@ -1,41 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import './routeDraw.dart' as Route;
 import './ball.dart';
 import './models.dart';
 import './dragBall.dart';
 import './gameOverButton.dart';
-
-const List<Offset> enter1 = [Offset(50, 80), Offset(80, 200)];
-const List<Offset> enter2 = [Offset(100, 80), Offset(80, 200)];
-const List<Offset> enter3 = [Offset(150, 80), Offset(180, 150)];
-const List<Offset> enter4 = [Offset(200, 80), Offset(180, 150)];
-const List<Offset> enter5 = [Offset(250, 80), Offset(270, 280)];
-const List<Offset> enter6 = [Offset(300, 80), Offset(270, 280)];
-List<List<Offset>> cross1 = [
-  [Offset(180, 150), Offset(80, 200)],
-  [Offset(180, 150), Offset(270, 280)],
-  [Offset(180, 150), Offset(140, 320)],
-];
-List<List<Offset>> cross2 = [
-  [Offset(80, 200), Offset(140, 320)],
-  [Offset(80, 200), Offset(40, 420)],
-  [Offset(80, 200), Offset(100, 420)],
-];
-List<List<Offset>> cross3 = [
-  [Offset(270, 280), Offset(140, 320)],
-  [Offset(270, 280), Offset(250, 420)],
-  [Offset(270, 280), Offset(300, 420)],
-];
-List<List<Offset>> cross4 = [
-  [Offset(140, 320), Offset(100, 420)],
-  [Offset(140, 320), Offset(170, 420)],
-  [Offset(140, 320), Offset(250, 420)],
-];
+import './boardCreatePath.dart';
 
 class Board extends StatefulWidget {
+  final double height;
+  final double witdh;
+
+  Board({this.height, this.witdh});
   @override
   _BoardState createState() => _BoardState();
 }
@@ -43,21 +22,8 @@ class Board extends StatefulWidget {
 class _BoardState extends State<Board> {
   bool gameOver = false;
 
-  final List<List<Offset>> enterPaths = [
-    enter1,
-    enter2,
-    enter3,
-    enter4,
-    enter5,
-    enter6,
-  ];
-
-  List<List<List<Offset>>> crossesPaths = [
-    cross1,
-    cross2,
-    cross3,
-    cross4,
-  ];
+  List<List<Offset>> enterPaths = [];
+  List<List<List<Offset>>> crossesPaths = [];
 
   List<BallClass> balls = [];
   List<BallClass> dropBalls = [];
@@ -218,6 +184,7 @@ class _BoardState extends State<Board> {
     }
 
     setState(() {
+      HapticFeedback.vibrate();
       dropBalls.add(balls[index]);
       balls.removeAt(index);
 
@@ -253,6 +220,7 @@ class _BoardState extends State<Board> {
 
       gameStopwatch = '00:00:00';
       _newBallTime = 5;
+      _timeToDropBall = null;
       _currentNewBallTime = null;
 
       gameOver = false;
@@ -261,6 +229,15 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
+    if (enterPaths.length == 0) {
+      simpleBoard(
+        height: widget.height,
+        witdh: widget.witdh,
+        enters: enterPaths,
+        crosses: crossesPaths,
+      );
+    }
+
     return Stack(
       children: <Widget>[
         //draw the game timer
@@ -360,6 +337,7 @@ class _BoardState extends State<Board> {
                       );
                     },
                     onWillAccept: (BallClass ball) {
+                      HapticFeedback.heavyImpact();
                       return true;
                     },
                     onAccept: (BallClass ball) {
