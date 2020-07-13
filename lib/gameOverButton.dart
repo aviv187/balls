@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 class GameOverButton extends StatelessWidget {
   final bool gameOver;
   final Function restartGame;
+  final String gameEndTime;
 
-  GameOverButton(this.gameOver, this.restartGame);
+  GameOverButton({
+    this.gameOver,
+    this.restartGame,
+    this.gameEndTime,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +56,14 @@ class GameOverButton extends StatelessWidget {
                 }
               },
             ),
+            SizedBox(height: 20),
+            Text(
+              gameEndTime,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            )
           ],
         ),
       ),

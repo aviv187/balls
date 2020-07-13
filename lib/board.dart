@@ -43,19 +43,6 @@ class Board extends StatefulWidget {
 class _BoardState extends State<Board> {
   bool gameOver = false;
 
-  final List<List<Offset>> allPaths = [
-    enter1,
-    enter2,
-    enter3,
-    enter4,
-    enter5,
-    enter6,
-    ...cross1,
-    ...cross2,
-    ...cross3,
-    ...cross4,
-  ];
-
   final List<List<Offset>> enterPaths = [
     enter1,
     enter2,
@@ -80,23 +67,28 @@ class _BoardState extends State<Board> {
     speed: 26,
   );
 
-  Timer timer;
+  //time till new ball
+  Timer timer1;
   int _newBallTime = 5;
   int _currentNewBallTime;
 
+  //bal time to drop
   Timer timer2;
   int _timeToDropBall;
   bool droped;
 
+  // tgame timer
+  Timer timer3;
+  String gameStopwatch = '00:00:00';
+
   // timer for new ball dropping
   void newBallTimer(int startTime) {
     _currentNewBallTime = startTime;
-    const oneSec = const Duration(seconds: 1);
-    timer = new Timer.periodic(
-      oneSec,
+    timer1 = new Timer.periodic(
+      Duration(seconds: 1),
       (Timer timer) => setState(
         () {
-          if (_currentNewBallTime == 1) {
+          if (_currentNewBallTime < 2) {
             timer.cancel();
             _currentNewBallTime = null;
             dropBallTimer();
@@ -112,9 +104,8 @@ class _BoardState extends State<Board> {
   void dropBallTimer() {
     _timeToDropBall = 5;
     droped = false;
-    const oneSec = const Duration(seconds: 1);
     timer2 = new Timer.periodic(
-      oneSec,
+      Duration(seconds: 1),
       (Timer timer) => setState(
         () {
           if (_timeToDropBall == 1) {
@@ -123,6 +114,8 @@ class _BoardState extends State<Board> {
 
             if (!droped) {
               gameOver = true;
+              timer1.cancel();
+              timer3.cancel();
             }
           } else {
             _timeToDropBall = _timeToDropBall - 1;
@@ -132,15 +125,42 @@ class _BoardState extends State<Board> {
     );
   }
 
+  // timer for the game
+  void startGameTimer() {
+    Stopwatch swatch = Stopwatch();
+
+    swatch.start();
+
+    timer3 = new Timer.periodic(
+      Duration(milliseconds: 1),
+      (Timer timer) => setState(
+        () {
+          gameStopwatch = (swatch.elapsed.inMinutes % 60)
+                  .toString()
+                  .padLeft(2, '0') +
+              ':' +
+              (swatch.elapsed.inSeconds % 60).toString().padLeft(2, '0') +
+              ':' +
+              (swatch.elapsed.inMilliseconds % 100).toString().padLeft(2, '0');
+        },
+      ),
+    );
+  }
+
   @override
   void dispose() {
-    timer.cancel();
+    timer1.cancel();
     timer2.cancel();
+    timer3.cancel();
     super.dispose();
   }
 
   void changeNewBall(int speed) {
     newBallTimer(_newBallTime);
+
+    if (gameStopwatch == '00:00:00') {
+      startGameTimer();
+    }
 
     if (_newBallTime < 60) {
       _newBallTime += 5;
@@ -151,29 +171,29 @@ class _BoardState extends State<Board> {
     switch (speed) {
       case 26:
         nextNewBall.color = Colors.orangeAccent.shade700;
-        nextNewBall.speed = 24;
+        nextNewBall.speed = 25;
         break;
-      case 24:
+      case 25:
         nextNewBall.color = Colors.yellow;
+        nextNewBall.speed = 23;
+        break;
+      case 23:
+        nextNewBall.color = Colors.greenAccent.shade700;
         nextNewBall.speed = 22;
         break;
       case 22:
-        nextNewBall.color = Colors.greenAccent.shade700;
+        nextNewBall.color = Colors.blue.shade400;
         nextNewBall.speed = 20;
         break;
       case 20:
-        nextNewBall.color = Colors.blue.shade400;
-        nextNewBall.speed = 18;
-        break;
-      case 18:
         nextNewBall.color = Colors.deepPurple.shade400;
-        nextNewBall.speed = 16;
+        nextNewBall.speed = 19;
         break;
-      case 16:
+      case 19:
         nextNewBall.color = Colors.pink.shade300;
-        nextNewBall.speed = 14;
+        nextNewBall.speed = 17;
         break;
-      case 14:
+      case 17:
         nextNewBall.color = Colors.red;
         nextNewBall.speed = 26;
         break;
@@ -203,6 +223,9 @@ class _BoardState extends State<Board> {
 
       if (dropBalls.length == 3) {
         gameOver = true;
+        timer1.cancel();
+        timer2.cancel();
+        timer3.cancel();
       }
     });
   }
@@ -228,6 +251,7 @@ class _BoardState extends State<Board> {
         speed: 26,
       );
 
+      gameStopwatch = '00:00:00';
       _newBallTime = 5;
       _currentNewBallTime = null;
 
@@ -239,16 +263,35 @@ class _BoardState extends State<Board> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
+        //draw the game timer
+        Positioned(
+          top: 20,
+          right: 20,
+          child: Center(
+            child: Text('$gameStopwatch'),
+          ),
+        ),
         // draw all paths
         Stack(
-          children: allPaths
-              .map(
-                (path) => Route.RouteDraw(
-                  path: path,
-                ),
-              )
+          children: enterPaths
+              .map((path) => Route.RouteDraw(
+                    path: path,
+                    index: 0,
+                  ))
               .toList(),
         ),
+        Stack(
+            children: crossesPaths
+                .map((list) => Stack(
+                      children: list.map((path) {
+                        int index = list.indexOf(path);
+                        return Route.RouteDraw(
+                          path: path,
+                          index: index,
+                        );
+                      }).toList(),
+                    ))
+                .toList()),
         // draw all the movig balls
         Stack(
           children: balls
@@ -272,8 +315,9 @@ class _BoardState extends State<Board> {
                   ball: ball,
                   disposeOfTheBall: () => dropBalls.remove(ball),
                   ballDropTime: null,
-                  positionFromTop: ball.path[1].dy - 10,
-                  positionFromLeft: ball.path[1].dx - 10,
+                  positionFromTop: ball.path[1].dy - 20,
+                  positionFromLeft: ball.path[1].dx - 20,
+                  gameOver: gameOver,
                 ),
               )
               .toList(),
@@ -286,7 +330,7 @@ class _BoardState extends State<Board> {
                 child: Text(
                   'new ball in $_currentNewBallTime',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 16,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -297,6 +341,7 @@ class _BoardState extends State<Board> {
                 ballDropTime: _timeToDropBall,
                 positionFromTop: 20,
                 positionFromLeft: 20,
+                gameOver: gameOver,
               ),
         // drop places widget
         Stack(
@@ -304,13 +349,13 @@ class _BoardState extends State<Board> {
               .map(
                 (enter) => Positioned(
                   left: enter[0].dx - 25,
-                  top: enter[0].dy - 25,
+                  top: enter[0].dy - 50,
                   child: DragTarget<BallClass>(
                     builder: (BuildContext context,
                         List<BallClass> candidateData,
                         List<dynamic> rejectedData) {
                       return Container(
-                        height: 50,
+                        height: 100,
                         width: 50,
                       );
                     },
@@ -332,7 +377,11 @@ class _BoardState extends State<Board> {
         ),
         Padding(
           padding: const EdgeInsets.only(top: 200),
-          child: GameOverButton(gameOver, restartGame),
+          child: GameOverButton(
+            gameOver: gameOver,
+            restartGame: restartGame,
+            gameEndTime: gameStopwatch,
+          ),
         ),
       ],
     );

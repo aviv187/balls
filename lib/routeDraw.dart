@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
 class RouteDraw extends StatelessWidget {
-  RouteDraw({this.path});
-
+  final int index;
   final List<Offset> path;
+
+  RouteDraw({this.path, this.index});
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
       child: Container(),
-      painter: RoutePainter(path[0], path[1]),
+      painter: RoutePainter(path[0], path[1], 0.6 - 0.2 * index),
     );
   }
 }
@@ -17,16 +18,21 @@ class RouteDraw extends StatelessWidget {
 class RoutePainter extends CustomPainter {
   final Offset p1;
   final Offset p2;
+  double opacity;
 
-  RoutePainter(this.p1, this.p2);
+  RoutePainter(this.p1, this.p2, this.opacity);
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (opacity < 0.1) {
+      opacity = 0.1;
+    }
+
     Paint paint = Paint()
-      ..color = Colors.blueGrey.withOpacity(0.4)
+      ..color = Colors.blueGrey.withOpacity(opacity)
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 4;
+      ..strokeWidth = 8;
 
     Path path = Path();
     path.moveTo(p1.dx, p1.dy);
