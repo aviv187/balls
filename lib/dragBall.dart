@@ -9,6 +9,7 @@ class DragBall extends StatelessWidget {
   final double positionFromTop;
   final double positionFromLeft;
   final bool gameOver;
+  final List<BallClass> ballsToRemove;
 
   DragBall({
     this.ball,
@@ -17,10 +18,14 @@ class DragBall extends StatelessWidget {
     this.positionFromTop,
     this.positionFromLeft,
     this.gameOver,
+    this.ballsToRemove,
   });
 
   @override
   Widget build(BuildContext context) {
+    bool hit = ballsToRemove.contains(ball);
+    print(hit);
+
     return Positioned(
         top: positionFromTop,
         left: positionFromLeft,
@@ -28,17 +33,17 @@ class DragBall extends StatelessWidget {
           maxSimultaneousDrags: gameOver ? 0 : 2,
           data: ball,
           child: SimpleBall(
-            ball: ball,
+            color: ball.color,
             ballDropTime: ballDropTime,
           ),
           feedback: SimpleBall(
-            ball: ball,
+            color: (hit) ? Colors.transparent : ball.color,
             ballDropTime: null,
           ),
           childWhenDragging: (ballDropTime != null)
               ? Container(
-                  height: 40,
-                  width: 40,
+                  height: 80,
+                  width: 80,
                   child: Center(
                       child: Text(
                     '$ballDropTime',
@@ -58,33 +63,36 @@ class DragBall extends StatelessWidget {
 class SimpleBall extends StatelessWidget {
   const SimpleBall({
     Key key,
-    @required this.ball,
+    @required this.color,
     @required this.ballDropTime,
   }) : super(key: key);
 
-  final BallClass ball;
+  final Color color;
   final int ballDropTime;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: ball.color,
-        shape: BoxShape.circle,
-      ),
-      child: (ballDropTime == null)
-          ? Container()
-          : Center(
-              child: Text(
-              '$ballDropTime',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            )),
-    );
+        padding: EdgeInsets.all(20),
+        color: Colors.white.withOpacity(0.01),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+          child: (ballDropTime == null)
+              ? Container()
+              : Center(
+                  child: Text(
+                  '$ballDropTime',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                )),
+        ));
   }
 }

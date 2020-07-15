@@ -50,7 +50,7 @@ class GameOverButton extends StatelessWidget {
                   ),
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
                 if (gameOver) {
                   restartGame();
                 }

@@ -70,6 +70,12 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
     }
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   double getBallLength(Path path) {
     PathMetrics pathMetrics = path.computeMetrics();
     double length;
