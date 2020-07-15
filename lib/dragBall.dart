@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import './models.dart';
 
-class DragBall extends StatelessWidget {
+class DragBall extends StatefulWidget {
   final BallClass ball;
   final Function disposeOfTheBall;
   final int ballDropTime;
@@ -22,31 +22,50 @@ class DragBall extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    bool hit = ballsToRemove.contains(ball);
-    print(hit);
+  _DragBallState createState() => _DragBallState();
+}
 
+class _DragBallState extends State<DragBall> {
+  bool hit;
+
+  @override
+  void initState() {
+    super.initState();
+    hit = false;
+  }
+
+  @override
+  void didUpdateWidget(DragBall oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    setState(() {
+      hit = widget.ballsToRemove.contains(widget.ball);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Positioned(
-        top: positionFromTop,
-        left: positionFromLeft,
+        top: widget.positionFromTop,
+        left: widget.positionFromLeft,
         child: Draggable<BallClass>(
-          maxSimultaneousDrags: gameOver ? 0 : 2,
-          data: ball,
+          maxSimultaneousDrags: widget.gameOver ? 0 : 2,
+          data: widget.ball,
           child: SimpleBall(
-            color: ball.color,
-            ballDropTime: ballDropTime,
+            color: (hit) ? Colors.transparent : widget.ball.color,
+            ballDropTime: widget.ballDropTime,
           ),
           feedback: SimpleBall(
-            color: (hit) ? Colors.transparent : ball.color,
+            color: widget.ball.color,
             ballDropTime: null,
           ),
-          childWhenDragging: (ballDropTime != null)
+          childWhenDragging: (widget.ballDropTime != null)
               ? Container(
                   height: 80,
                   width: 80,
                   child: Center(
                       child: Text(
-                    '$ballDropTime',
+                    '${widget.ballDropTime}',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -54,30 +73,31 @@ class DragBall extends StatelessWidget {
                   )))
               : Container(),
           onDragCompleted: () {
-            disposeOfTheBall();
+            widget.disposeOfTheBall();
           },
         ));
   }
 }
 
 class SimpleBall extends StatelessWidget {
-  const SimpleBall({
-    Key key,
-    @required this.color,
-    @required this.ballDropTime,
-  }) : super(key: key);
-
   final Color color;
   final int ballDropTime;
 
+  const SimpleBall({
+    Key key,
+    this.color,
+    this.ballDropTime,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: EdgeInsets.all(20),
+    return AnimatedContainer(
+        duration: Duration(seconds: 1),
+        padding: EdgeInsets.all(25),
         color: Colors.white.withOpacity(0.01),
         child: Container(
-          width: 40,
-          height: 40,
+          width: 30,
+          height: 30,
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,

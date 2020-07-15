@@ -4,6 +4,13 @@ import 'package:flutter/material.dart';
 import './board.dart';
 import './HomePage.dart';
 
+enum Screen {
+  homePage,
+  game,
+  scoreBoard,
+  options,
+}
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -43,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case Screen.game:
         return Board(
-          height: screenWidth * 1.75,
+          height: screenWidth * 1.7,
           witdh: screenWidth,
         );
         break;
@@ -88,11 +95,4 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: screen(currentScreen, screenWidth));
   }
-}
-
-enum Screen {
-  homePage,
-  game,
-  scoreBoard,
-  options,
 }

@@ -32,7 +32,7 @@ class RoutePainter extends CustomPainter {
       ..color = Colors.blueGrey.withOpacity(opacity)
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 8;
+      ..strokeWidth = 5;
 
     Path path = Path();
     path.moveTo(p1.dx, p1.dy);

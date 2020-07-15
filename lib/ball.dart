@@ -137,7 +137,7 @@ class BallPainter extends CustomPainter {
       final PathMetric metric = extractPath.computeMetrics().first;
       Offset offset = metric.getTangentForOffset(metric.length).position;
 
-      canvas.drawCircle(offset, 20, paintBall);
+      canvas.drawCircle(offset, 15, paintBall);
     }
   }
 
