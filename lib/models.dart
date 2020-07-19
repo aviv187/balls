@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class BallClass {
   Color color;
-  final Key key;
+  Key key;
   int speed;
   List<Offset> path;
 
@@ -12,4 +12,11 @@ class BallClass {
     this.key,
     this.speed,
   });
+}
+
+class Score {
+  String name;
+  String score;
+
+  Score({this.name, this.score});
 }

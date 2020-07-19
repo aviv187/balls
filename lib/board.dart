@@ -34,6 +34,7 @@ class _BoardState extends State<Board> {
   BallClass nextNewBall = BallClass(
     color: Colors.red,
     speed: 26,
+    key: UniqueKey(),
   );
 
   //time till new ball
@@ -105,7 +106,7 @@ class _BoardState extends State<Board> {
       Duration(milliseconds: 1),
       (Timer timer) => setState(
         () {
-          gameStopwatch = (swatch.elapsed.inMinutes % 60)
+          gameStopwatch = (swatch.elapsed.inMinutes % 100)
                   .toString()
                   .padLeft(2, '0') +
               ':' +
@@ -149,40 +150,47 @@ class _BoardState extends State<Board> {
       case 26:
         nextNewBall.color = Colors.orangeAccent.shade700;
         nextNewBall.speed = 25;
+        nextNewBall.key = UniqueKey();
         break;
       case 25:
         nextNewBall.color = Colors.yellow;
         nextNewBall.speed = 23;
+        nextNewBall.key = UniqueKey();
         break;
       case 23:
         nextNewBall.color = Colors.greenAccent.shade700;
         nextNewBall.speed = 22;
+        nextNewBall.key = UniqueKey();
         break;
       case 22:
         nextNewBall.color = Colors.blue.shade400;
         nextNewBall.speed = 20;
+        nextNewBall.key = UniqueKey();
         break;
       case 20:
         nextNewBall.color = Colors.deepPurple.shade400;
         nextNewBall.speed = 19;
+        nextNewBall.key = UniqueKey();
         break;
       case 19:
         nextNewBall.color = Colors.pink.shade300;
         nextNewBall.speed = 17;
+        nextNewBall.key = UniqueKey();
         break;
       case 17:
         nextNewBall.color = Colors.red;
         nextNewBall.speed = 26;
+        nextNewBall.key = UniqueKey();
         break;
       default:
         nextNewBall.color = Colors.red;
         nextNewBall.speed = 26;
+        nextNewBall.key = UniqueKey();
     }
   }
 
   void changeBallRoute(Key key, List<Offset> path) {
     int index = balls.indexWhere((b) => b.key == key);
-
     for (int i = 0; i < crossesPaths.length; i++) {
       if (path[1] == crossesPaths[i][0][0]) {
         setState(() {
@@ -209,17 +217,13 @@ class _BoardState extends State<Board> {
   }
 
   // add new ball top the paths
-  void _addBall({
-    List<Offset> enter,
-    Color color,
-    int speed,
-  }) {
+  void _addBall({List<Offset> enter, Color color, int speed, Key key}) {
     setState(() {
       balls.add(BallClass(
         path: enter,
         color: color,
         speed: speed,
-        key: UniqueKey(),
+        key: key,
       ));
     });
   }
@@ -232,6 +236,7 @@ class _BoardState extends State<Board> {
       nextNewBall = BallClass(
         color: Colors.red,
         speed: 26,
+        key: UniqueKey(),
       );
 
       gameStopwatch = '00:00:00';
@@ -338,7 +343,7 @@ class _BoardState extends State<Board> {
               left: ball.path[0].dx - 40,
               child: SimpleBall(
                 color: ball.color,
-                key: UniqueKey(),
+                key: ball.key,
                 ballDropTime: null,
               ));
         }).toList()),
@@ -380,6 +385,7 @@ class _BoardState extends State<Board> {
                         enter: enter,
                         color: ball.color,
                         speed: ball.speed,
+                        key: ball.key,
                       );
                       return true;
                     },

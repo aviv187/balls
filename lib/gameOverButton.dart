@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import './scorePage.dart';
+import './models.dart';
+
 class GameOverButton extends StatelessWidget {
   final bool gameOver;
   final Function restartGame;
@@ -53,6 +56,11 @@ class GameOverButton extends StatelessWidget {
               onPressed: () async {
                 if (gameOver) {
                   restartGame();
+
+                  addScore(Score(
+                    name: 'player',
+                    score: gameEndTime,
+                  ));
                 }
               },
             ),

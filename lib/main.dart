@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import './board.dart';
 import './HomePage.dart';
+import './scorePage.dart';
 
 enum Screen {
   homePage,
@@ -34,9 +35,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Screen currentScreen = Screen.homePage;
 
-  void startGame() {
+  void changeScreen(Screen screen) {
     setState(() {
-      currentScreen = Screen.game;
+      currentScreen = screen;
     });
   }
 
@@ -45,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
       case Screen.homePage:
         return HomePage(
           screenWidth: screenWidth,
-          startGame: startGame,
+          changeScreen: changeScreen,
         );
         break;
       case Screen.game:
@@ -55,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         break;
       case Screen.scoreBoard:
-        return Container();
+        return ScorePage();
         break;
       case Screen.options:
         return Container();
@@ -63,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
       default:
         return HomePage(
           screenWidth: screenWidth,
-          startGame: startGame,
+          changeScreen: changeScreen,
         );
     }
   }

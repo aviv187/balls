@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import './main.dart';
+
 class HomePage extends StatelessWidget {
   final double screenWidth;
-  final Function startGame;
+  final Function changeScreen;
 
-  HomePage({this.screenWidth, this.startGame});
+  HomePage({
+    this.screenWidth,
+    this.changeScreen,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +39,7 @@ class HomePage extends StatelessWidget {
             ),
             onPressed: () {
               HapticFeedback.heavyImpact();
-              startGame();
+              changeScreen(Screen.game);
             },
           ),
           SizedBox(height: 30),
@@ -57,7 +62,10 @@ class HomePage extends StatelessWidget {
                 ),
               )),
             ),
-            onPressed: () {},
+            onPressed: () {
+              HapticFeedback.heavyImpact();
+              changeScreen(Screen.scoreBoard);
+            },
           ),
           SizedBox(height: 30),
           FlatButton(
@@ -79,7 +87,10 @@ class HomePage extends StatelessWidget {
                 ),
               )),
             ),
-            onPressed: () {},
+            onPressed: () {
+              HapticFeedback.heavyImpact();
+              changeScreen(Screen.options);
+            },
           ),
           SizedBox(height: 170),
         ],

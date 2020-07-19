@@ -26,12 +26,12 @@ class DragBall extends StatefulWidget {
 }
 
 class _DragBallState extends State<DragBall> {
-  bool hit;
+  bool hitTarget;
 
   @override
   void initState() {
     super.initState();
-    hit = false;
+    hitTarget = false;
   }
 
   @override
@@ -39,7 +39,7 @@ class _DragBallState extends State<DragBall> {
     super.didUpdateWidget(oldWidget);
 
     setState(() {
-      hit = widget.ballsToRemove.contains(widget.ball);
+      hitTarget = widget.ballsToRemove.contains(widget.ball);
     });
   }
 
@@ -52,11 +52,11 @@ class _DragBallState extends State<DragBall> {
           maxSimultaneousDrags: widget.gameOver ? 0 : 2,
           data: widget.ball,
           child: SimpleBall(
-            color: (hit) ? Colors.transparent : widget.ball.color,
+            color: (hitTarget) ? Colors.transparent : widget.ball.color,
             ballDropTime: widget.ballDropTime,
           ),
           feedback: SimpleBall(
-            color: widget.ball.color,
+            color: hitTarget ? Colors.transparent : widget.ball.color,
             ballDropTime: null,
           ),
           childWhenDragging: (widget.ballDropTime != null)
