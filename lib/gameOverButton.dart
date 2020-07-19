@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import './scorePage.dart';
 import './models.dart';
 
-class GameOverButton extends StatelessWidget {
+class GameOverButton extends StatefulWidget {
   final bool gameOver;
   final Function restartGame;
   final String gameEndTime;
@@ -15,9 +15,17 @@ class GameOverButton extends StatelessWidget {
   });
 
   @override
+  _GameOverButtonState createState() => _GameOverButtonState();
+}
+
+class _GameOverButtonState extends State<GameOverButton> {
+  TextEditingController _textEditingController = TextEditingController();
+  bool canSave = true;
+
+  @override
   Widget build(BuildContext context) {
     double opacity = 1;
-    if (!gameOver) {
+    if (!widget.gameOver) {
       opacity = 0;
     }
 
@@ -54,24 +62,61 @@ class GameOverButton extends StatelessWidget {
                 ),
               ),
               onPressed: () async {
-                if (gameOver) {
-                  restartGame();
+                if (widget.gameOver) {
+                  widget.restartGame();
 
-                  addScore(Score(
-                    name: 'player',
-                    score: gameEndTime,
-                  ));
+                  canSave = false;
                 }
               },
             ),
             SizedBox(height: 20),
             Text(
-              gameEndTime,
+              widget.gameEndTime,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
-            )
+            ),
+            SizedBox(height: 20),
+            Container(
+              width: 180,
+              child: TextFormField(
+                controller: _textEditingController,
+                decoration: InputDecoration(
+                  labelText: 'Enter your Name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                      const Radius.circular(12.0),
+                    ),
+                  ),
+                  labelStyle: TextStyle(
+                    color: Colors.black.withOpacity(0.8),
+                  ),
+                ),
+              ),
+            ),
+            FlatButton(
+              child: Text('Save Score'),
+              onPressed: canSave
+                  ? () {
+                      setState(() {
+                        canSave = false;
+                      });
+
+                      if (_textEditingController.text == '') {
+                        addScore(Score(
+                          name: 'Player',
+                          score: widget.gameEndTime,
+                        ));
+                      } else {
+                        addScore(Score(
+                          name: _textEditingController.text,
+                          score: widget.gameEndTime,
+                        ));
+                      }
+                    }
+                  : null,
+            ),
           ],
         ),
       ),
