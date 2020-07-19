@@ -9,7 +9,6 @@ class DragBall extends StatefulWidget {
   final double positionFromTop;
   final double positionFromLeft;
   final bool gameOver;
-  final List<BallClass> ballsToRemove;
 
   DragBall({
     this.ball,
@@ -18,7 +17,6 @@ class DragBall extends StatefulWidget {
     this.positionFromTop,
     this.positionFromLeft,
     this.gameOver,
-    this.ballsToRemove,
   });
 
   @override
@@ -26,23 +24,6 @@ class DragBall extends StatefulWidget {
 }
 
 class _DragBallState extends State<DragBall> {
-  bool hitTarget;
-
-  @override
-  void initState() {
-    super.initState();
-    hitTarget = false;
-  }
-
-  @override
-  void didUpdateWidget(DragBall oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    setState(() {
-      hitTarget = widget.ballsToRemove.contains(widget.ball);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -50,13 +31,17 @@ class _DragBallState extends State<DragBall> {
         left: widget.positionFromLeft,
         child: Draggable<BallClass>(
           maxSimultaneousDrags: widget.gameOver ? 0 : 2,
-          data: widget.ball,
+          data: BallClass(
+            key: widget.ball.key,
+            color: widget.ball.color,
+            speed: widget.ball.speed,
+          ),
           child: SimpleBall(
-            color: (hitTarget) ? Colors.transparent : widget.ball.color,
+            color: widget.ball.color,
             ballDropTime: widget.ballDropTime,
           ),
           feedback: SimpleBall(
-            color: hitTarget ? Colors.transparent : widget.ball.color,
+            color: widget.ball.color,
             ballDropTime: null,
           ),
           childWhenDragging: (widget.ballDropTime != null)

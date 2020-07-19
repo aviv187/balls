@@ -191,9 +191,9 @@ class _BoardState extends State<Board> {
   }
 
   void changeBallRoute(Key key, List<Offset> path) {
+    int index = balls.indexWhere((b) => b.key == key);
     for (int i = 0; i < crossesPaths.length; i++) {
       if (path[1] == crossesPaths[i][0][0]) {
-        int index = balls.indexWhere((b) => b.key == key);
         setState(() {
           balls[index].path = crossesPaths[i][0];
           crossesPaths[i].add(crossesPaths[i][0]);
@@ -202,8 +202,6 @@ class _BoardState extends State<Board> {
         return;
       }
     }
-
-    int index = balls.indexWhere((b) => b.key == key);
 
     setState(() {
       HapticFeedback.lightImpact();
@@ -311,7 +309,6 @@ class _BoardState extends State<Board> {
                   positionFromTop: ball.path[1].dy - 40,
                   positionFromLeft: ball.path[1].dx - 40,
                   gameOver: gameOver,
-                  ballsToRemove: whereWillBallDrop,
                 ),
               )
               .toList(),
@@ -336,7 +333,6 @@ class _BoardState extends State<Board> {
                 positionFromTop: 0,
                 positionFromLeft: 0,
                 gameOver: gameOver,
-                ballsToRemove: whereWillBallDrop,
               ),
         // draw where will balls drop while dragged
         Stack(
@@ -374,8 +370,8 @@ class _BoardState extends State<Board> {
                     onWillAccept: (BallClass ball) {
                       setState(() {
                         whereWillBallDrop.add(ball);
-                        int index1 = whereWillBallDrop.indexOf(ball);
-                        whereWillBallDrop[index1].path = enter;
+                        int index = whereWillBallDrop.indexOf(ball);
+                        whereWillBallDrop[index].path = enter;
                       });
                       HapticFeedback.heavyImpact();
                       return true;
@@ -384,6 +380,7 @@ class _BoardState extends State<Board> {
                       setState(() {
                         whereWillBallDrop.remove(ball);
                       });
+                      ball.path = enter;
 
                       _addBall(ball);
                       return true;
