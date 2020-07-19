@@ -98,6 +98,7 @@ class _GameOverButtonState extends State<GameOverButton> {
               child: Text('Save Score'),
               onPressed: canSave
                   ? () {
+                      FocusScope.of(context).unfocus();
                       setState(() {
                         canSave = false;
                       });

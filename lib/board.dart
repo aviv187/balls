@@ -166,6 +166,7 @@ class _BoardState extends State<Board> {
         nextNewBall.color = Colors.blue.shade400;
         nextNewBall.speed = 20;
         nextNewBall.key = UniqueKey();
+        Color(0xff00c853);
         break;
       case 20:
         nextNewBall.color = Colors.deepPurple.shade400;
@@ -190,9 +191,9 @@ class _BoardState extends State<Board> {
   }
 
   void changeBallRoute(Key key, List<Offset> path) {
-    int index = balls.indexWhere((b) => b.key == key);
     for (int i = 0; i < crossesPaths.length; i++) {
       if (path[1] == crossesPaths[i][0][0]) {
+        int index = balls.indexWhere((b) => b.key == key);
         setState(() {
           balls[index].path = crossesPaths[i][0];
           crossesPaths[i].add(crossesPaths[i][0]);
@@ -201,6 +202,8 @@ class _BoardState extends State<Board> {
         return;
       }
     }
+
+    int index = balls.indexWhere((b) => b.key == key);
 
     setState(() {
       HapticFeedback.lightImpact();
@@ -217,13 +220,13 @@ class _BoardState extends State<Board> {
   }
 
   // add new ball top the paths
-  void _addBall({List<Offset> enter, Color color, int speed, Key key}) {
+  void _addBall(BallClass ball) {
     setState(() {
       balls.add(BallClass(
-        path: enter,
-        color: color,
-        speed: speed,
-        key: key,
+        color: ball.color,
+        path: ball.path,
+        speed: ball.speed,
+        key: ball.key,
       ));
     });
   }
@@ -381,12 +384,8 @@ class _BoardState extends State<Board> {
                       setState(() {
                         whereWillBallDrop.remove(ball);
                       });
-                      _addBall(
-                        enter: enter,
-                        color: ball.color,
-                        speed: ball.speed,
-                        key: ball.key,
-                      );
+
+                      _addBall(ball);
                       return true;
                     },
                   ),
