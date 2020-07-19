@@ -395,14 +395,13 @@ class _BoardState extends State<Board> {
               .toList(),
         ),
         // End game button
-        Padding(
-          padding: const EdgeInsets.only(top: 200),
-          child: GameOverButton(
-            gameOver: gameOver,
-            restartGame: restartGame,
-            gameEndTime: gameStopwatch,
-          ),
-        ),
+        (gameOver)
+            ? GameOverButton(
+                gameOver: gameOver,
+                restartGame: restartGame,
+                gameEndTime: gameStopwatch,
+              )
+            : Container(),
         //draw the game timer
         Positioned(
           top: 20,

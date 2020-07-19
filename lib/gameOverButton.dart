@@ -35,6 +35,7 @@ class _GameOverButtonState extends State<GameOverButton> {
       child: Center(
         child: Column(
           children: <Widget>[
+            SizedBox(height: 80),
             Text(
               'Game Over',
               style: TextStyle(
@@ -62,11 +63,9 @@ class _GameOverButtonState extends State<GameOverButton> {
                 ),
               ),
               onPressed: () async {
-                if (widget.gameOver) {
-                  widget.restartGame();
+                widget.restartGame();
 
-                  canSave = false;
-                }
+                canSave = false;
               },
             ),
             SizedBox(height: 20),
