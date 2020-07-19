@@ -74,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text('Balls'),
           centerTitle: true,
