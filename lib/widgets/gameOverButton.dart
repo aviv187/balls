@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import './scorePage.dart';
-import './models.dart';
+import '../screens/scorePage.dart';
+import '../models.dart';
 
 class GameOverButton extends StatefulWidget {
   final bool gameOver;
