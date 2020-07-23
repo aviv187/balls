@@ -1,16 +1,37 @@
 import 'package:flutter/material.dart';
 
 class RouteDraw extends StatelessWidget {
-  final int index;
-  final List<Offset> path;
+  final List<List<Offset>> enterPaths;
+  final List<List<List<Offset>>> crossesPaths;
 
-  RouteDraw({this.path, this.index});
+  RouteDraw({this.enterPaths, this.crossesPaths});
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      child: Container(),
-      painter: RoutePainter(path[0], path[1], 0.6 - 0.2 * index),
+    return Stack(
+      children: <Widget>[
+        Stack(
+          children: enterPaths.map((path) {
+            return CustomPaint(
+              child: Container(),
+              painter: RoutePainter(path[0], path[1], 0.6),
+            );
+          }).toList(),
+        ),
+        Stack(
+            children: crossesPaths
+                .map((list) => Stack(
+                      children: list.map((path) {
+                        int index = list.indexOf(path);
+                        return CustomPaint(
+                          child: Container(),
+                          painter:
+                              RoutePainter(path[0], path[1], 0.6 - 0.2 * index),
+                        );
+                      }).toList(),
+                    ))
+                .toList()),
+      ],
     );
   }
 }

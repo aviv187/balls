@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../models.dart';
-
-List<Score> scoreList = [];
-
-void addScore(Score score) {
-  scoreList.add(score);
-}
-
-class ScorePage extends StatelessWidget {
+class ScorePage extends StatefulWidget {
   static const routeName = '/score';
 
+  @override
+  _ScorePageState createState() => _ScorePageState();
+}
+
+class _ScorePageState extends State<ScorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,29 +28,30 @@ class ScorePage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            (scoreList.isEmpty)
-                ? Text('empty :(')
-                : Expanded(
-                    child: ListView.builder(
-                      itemCount: scoreList.length,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 80,
-                        vertical: 10,
-                      ),
-                      itemBuilder: (BuildContext context, int i) {
-                        scoreList.sort((a, b) => b.score.compareTo(a.score));
-                        return Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text('${i + 1}. ${scoreList[i].name}'),
-                              Text(scoreList[i].score),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+
+            // (scoreList.isEmpty)
+            //     ? Text('empty :(')
+            //     : Expanded(
+            //         child: ListView.builder(
+            //           itemCount: scoreList.length,
+            //           padding: EdgeInsets.symmetric(
+            //             horizontal: 80,
+            //             vertical: 10,
+            //           ),
+            //           itemBuilder: (BuildContext context, int i) {
+            //             scoreList.sort((a, b) => b.score.compareTo(a.score));
+            //             return Center(
+            //               child: Row(
+            //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //                 children: <Widget>[
+            //                   Text('${i + 1}. ${scoreList[i].name}'),
+            //                   Text(scoreList[i].score),
+            //                 ],
+            //               ),
+            //             );
+            //           },
+            //         ),
+            //       ),
           ],
         ),
       ),

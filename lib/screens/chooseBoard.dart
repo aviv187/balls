@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../boardCreatePath.dart';
-import 'board.dart';
+import './board.dart';
+import '../widgets/routeDraw.dart' as Route;
+import '../changePageBuilder.dart';
 
 class ChooseBoard extends StatelessWidget {
   static const routeName = '/choose';
 
+  @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
@@ -22,37 +25,46 @@ class ChooseBoard extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          children: makeBoardFunctions
-              .map(
-                (createBoardFunction) => Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    border: Border.all(
-                      width: 1,
-                      color: Colors.blueGrey,
-                    ),
-                  ),
-                  child: FlatButton(
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    child: Text('board'),
-                    onPressed: () {
-                      HapticFeedback.heavyImpact();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Board(
-                            height: screenWidth * 1.6,
-                            width: screenWidth,
-                            makeBoard: createBoardFunction,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+          children: makeBoardFunctions.map((createBoardFunction) {
+            List<List<Offset>> enterPaths = [];
+            List<List<List<Offset>>> crossesPaths = [];
+            createBoardFunction(
+              height: (screenWidth - 30) / 2.2,
+              witdh: (screenWidth - 30) / 2.6,
+              enters: enterPaths,
+              crosses: crossesPaths,
+            );
+            return Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(15)),
+                border: Border.all(
+                  width: 1,
+                  color: Colors.blueGrey.withOpacity(0.7),
                 ),
-              )
-              .toList()),
+              ),
+              child: FlatButton(
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                child: Route.RouteDraw(
+                  crossesPaths: crossesPaths,
+                  enterPaths: enterPaths,
+                ),
+                onPressed: () {
+                  HapticFeedback.heavyImpact();
+                  Navigator.push(
+                    context,
+                    FadeRoute(
+                      page: Board(
+                        height: screenWidth * 1.6,
+                        width: screenWidth,
+                        makeBoard: createBoardFunction,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }).toList()),
     );
   }
 }

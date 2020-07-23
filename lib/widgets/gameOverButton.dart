@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../screens/scorePage.dart';
-import '../models.dart';
-
 class GameOverButton extends StatefulWidget {
   final bool gameOver;
   final Function restartGame;
@@ -103,17 +100,16 @@ class _GameOverButtonState extends State<GameOverButton> {
                         canSave = false;
                       });
 
-                      if (_textEditingController.text == '') {
-                        addScore(Score(
-                          name: 'Player',
-                          score: widget.gameEndTime,
-                        ));
-                      } else {
-                        addScore(Score(
-                          name: _textEditingController.text,
-                          score: widget.gameEndTime,
-                        ));
-                      }
+                      // if (_textEditingController.text == '') {
+                      //   var newDBScore =
+                      //       Score(name: 'player', score: widget.gameEndTime);
+                      //   DBProvider.db.newScore(newDBScore);
+                      // } else {
+                      //   var newDBScore = Score(
+                      //       name: _textEditingController.text,
+                      //       score: widget.gameEndTime);
+                      //   DBProvider.db.newScore(newDBScore);
+                      // }
                     }
                   : null,
             ),

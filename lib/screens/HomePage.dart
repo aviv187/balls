@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import './chooseBoard.dart';
 import './optionsPage.dart';
 import './scorePage.dart';
+import '../changePageBuilder.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -40,8 +41,11 @@ class HomePage extends StatelessWidget {
               ),
               onPressed: () {
                 HapticFeedback.heavyImpact();
-                Navigator.of(context).pushNamed(
-                  ChooseBoard.routeName,
+                Navigator.push(
+                  context,
+                  FadeRoute(
+                    page: ChooseBoard(),
+                  ),
                 );
               },
             ),
@@ -67,8 +71,11 @@ class HomePage extends StatelessWidget {
               ),
               onPressed: () {
                 HapticFeedback.heavyImpact();
-                Navigator.of(context).pushNamed(
-                  ScorePage.routeName,
+                Navigator.push(
+                  context,
+                  FadeRoute(
+                    page: ScorePage(),
+                  ),
                 );
               },
             ),
@@ -94,8 +101,11 @@ class HomePage extends StatelessWidget {
               ),
               onPressed: () {
                 HapticFeedback.heavyImpact();
-                Navigator.of(context).pushNamed(
-                  OptionsPage.routeName,
+                Navigator.push(
+                  context,
+                  FadeRoute(
+                    page: OptionsPage(),
+                  ),
                 );
               },
             ),

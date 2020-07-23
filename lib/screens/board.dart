@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../widgets/routeDraw.dart' as Route;
 import '../widgets/ball.dart';
-import '../models.dart';
+import '../models/ballModel.dart';
 import '../widgets/dragBall.dart';
 import '../widgets/gameOverButton.dart';
 
@@ -251,6 +251,7 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
+    //make the board only fot the first time
     if (enterPaths.length == 0) {
       widget.makeBoard(
         height: widget.height,
@@ -269,26 +270,10 @@ class _BoardState extends State<Board> {
       body: Stack(
         children: <Widget>[
           // draw all paths
-          Stack(
-            children: enterPaths
-                .map((path) => Route.RouteDraw(
-                      path: path,
-                      index: 0,
-                    ))
-                .toList(),
+          Route.RouteDraw(
+            enterPaths: enterPaths,
+            crossesPaths: crossesPaths,
           ),
-          Stack(
-              children: crossesPaths
-                  .map((list) => Stack(
-                        children: list.map((path) {
-                          int index = list.indexOf(path);
-                          return Route.RouteDraw(
-                            path: path,
-                            index: index,
-                          );
-                        }).toList(),
-                      ))
-                  .toList()),
           // draw all the movig balls
           Stack(
             children: balls

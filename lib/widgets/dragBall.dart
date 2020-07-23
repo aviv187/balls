@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models.dart';
+import '../models/ballModel.dart';
 
 class DragBall extends StatefulWidget {
   final BallClass ball;

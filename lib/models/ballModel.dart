@@ -13,10 +13,3 @@ class BallClass {
     this.speed,
   });
 }
-
-class Score {
-  String name;
-  String score;
-
-  Score({this.name, this.score});
-}
