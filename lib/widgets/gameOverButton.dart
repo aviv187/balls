@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../database.dart';
+
 class GameOverButton extends StatefulWidget {
   final bool gameOver;
   final Function restartGame;
@@ -24,6 +26,15 @@ class _GameOverButtonState extends State<GameOverButton> {
     double opacity = 1;
     if (!widget.gameOver) {
       opacity = 0;
+    }
+
+    void _insert(String name, String time) async {
+      Map<String, dynamic> row = {
+        DatabaseHelper.columnName: name,
+        DatabaseHelper.columnScore: time,
+      };
+
+      await DatabaseHelper.instance.insert(row);
     }
 
     return AnimatedOpacity(
@@ -94,22 +105,18 @@ class _GameOverButtonState extends State<GameOverButton> {
             FlatButton(
               child: Text('Save Score'),
               onPressed: canSave
-                  ? () {
+                  ? () async {
                       FocusScope.of(context).unfocus();
+                      if (_textEditingController.text == '') {
+                        _insert('player', widget.gameEndTime);
+                      } else {
+                        _insert(
+                            _textEditingController.text, widget.gameEndTime);
+                      }
+
                       setState(() {
                         canSave = false;
                       });
-
-                      // if (_textEditingController.text == '') {
-                      //   var newDBScore =
-                      //       Score(name: 'player', score: widget.gameEndTime);
-                      //   DBProvider.db.newScore(newDBScore);
-                      // } else {
-                      //   var newDBScore = Score(
-                      //       name: _textEditingController.text,
-                      //       score: widget.gameEndTime);
-                      //   DBProvider.db.newScore(newDBScore);
-                      // }
                     }
                   : null,
             ),
