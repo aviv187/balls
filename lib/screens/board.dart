@@ -342,7 +342,7 @@ class _BoardState extends State<Board> {
             children: enterPaths
                 .map(
                   (enter) => Positioned(
-                    left: enter[0].dx - 25,
+                    left: enter[0].dx - 40,
                     top: enter[0].dy - 50,
                     child: DragTarget<BallClass>(
                       builder: (BuildContext context,
@@ -350,7 +350,7 @@ class _BoardState extends State<Board> {
                           List<dynamic> rejectedData) {
                         return Container(
                           height: 100,
-                          width: 50,
+                          width: 80,
                         );
                       },
                       onLeave: (ball) {

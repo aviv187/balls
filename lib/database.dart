@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 
 class DatabaseHelper {
-  static final _dbName = 'myDatabase.db';
+  static final _dbName = 'ballsDatabase.db';
   static final _dbVersion = 1;
 
   static final _tableName = 'myTable';
@@ -37,17 +37,17 @@ class DatabaseHelper {
     await db.execute('''
     CREATE TABLE $_tableName (
       $columnId INTEGER PRIMARY KEY,
-      $columnName TEXT, 
+      $columnName TEXT NOT NULL, 
       $columnScore TEXT NOT NULL)''');
   }
 
   Future<int> insert(Map<String, dynamic> row) async {
-    Database db = await instance.database;
+    final Database db = await instance.database;
     return await db.insert(_tableName, row);
   }
 
   Future<List<Map<String, dynamic>>> queryAll() async {
-    Database db = await instance.database;
-    return await db.query(_tableName);
+    final Database db = await instance.database;
+    return await db.query(_tableName, orderBy: 'score DESC');
   }
 }

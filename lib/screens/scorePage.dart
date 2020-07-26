@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../database.dart';
+
 class ScorePage extends StatefulWidget {
   static const routeName = '/score';
 
@@ -8,6 +10,19 @@ class ScorePage extends StatefulWidget {
 }
 
 class _ScorePageState extends State<ScorePage> {
+  List<Map> scoreList = [];
+
+  void _getScoreboard() async {
+    List<Map> list = await DatabaseHelper.instance.queryAll();
+    setState(() => scoreList = list);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getScoreboard();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,30 +43,28 @@ class _ScorePageState extends State<ScorePage> {
               ),
             ),
             SizedBox(height: 20),
-
-            // (scoreList.isEmpty)
-            //     ? Text('empty :(')
-            //     : Expanded(
-            //         child: ListView.builder(
-            //           itemCount: scoreList.length,
-            //           padding: EdgeInsets.symmetric(
-            //             horizontal: 80,
-            //             vertical: 10,
-            //           ),
-            //           itemBuilder: (BuildContext context, int i) {
-            //             scoreList.sort((a, b) => b.score.compareTo(a.score));
-            //             return Center(
-            //               child: Row(
-            //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //                 children: <Widget>[
-            //                   Text('${i + 1}. ${scoreList[i].name}'),
-            //                   Text(scoreList[i].score),
-            //                 ],
-            //               ),
-            //             );
-            //           },
-            //         ),
-            //       ),
+            (scoreList.isEmpty)
+                ? Text('empty :(')
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: scoreList.length,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 80,
+                        vertical: 10,
+                      ),
+                      itemBuilder: (BuildContext context, int i) {
+                        return Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text('${i + 1}. ${scoreList[i]['name']}'),
+                              Text(scoreList[i]['score']),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
           ],
         ),
       ),
