@@ -106,7 +106,6 @@ class _GameOverButtonState extends State<GameOverButton> {
               child: Text('Save Score'),
               onPressed: canSave
                   ? () async {
-                      FocusScope.of(context).unfocus();
                       if (_textEditingController.text == '') {
                         _insert('player', widget.gameEndTime);
                       } else {

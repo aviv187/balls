@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import '../database.dart';
 
 class ScorePage extends StatefulWidget {
-  static const routeName = '/score';
-
   @override
   _ScorePageState createState() => _ScorePageState();
 }

@@ -8,6 +8,7 @@ import '../widgets/ball.dart';
 import '../models/ballModel.dart';
 import '../widgets/dragBall.dart';
 import '../widgets/gameOverButton.dart';
+import '../feedbackController.dart';
 
 class Board extends StatefulWidget {
   final double height;
@@ -28,7 +29,6 @@ class _BoardState extends State<Board> {
 
   List<BallClass> balls = [];
   List<BallClass> dropBalls = [];
-  List<BallClass> whereWillBallDrop = [];
 
   // first draganle ball
   BallClass nextNewBall = BallClass(
@@ -50,6 +50,14 @@ class _BoardState extends State<Board> {
   // game timer
   Timer timer3;
   String gameStopwatch = '00:00:00';
+
+  MyDraggableController<BallClass> draggableController;
+
+  @override
+  void initState() {
+    this.draggableController = new MyDraggableController<BallClass>();
+    super.initState();
+  }
 
   // timer for new ball dropping
   void newBallTimer(int startTime) {
@@ -262,6 +270,7 @@ class _BoardState extends State<Board> {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('Balls'),
         centerTitle: true,
@@ -270,9 +279,12 @@ class _BoardState extends State<Board> {
       body: Stack(
         children: <Widget>[
           // draw all paths
-          Route.RouteDraw(
-            enterPaths: enterPaths,
-            crossesPaths: crossesPaths,
+          Hero(
+            tag: widget.makeBoard.hashCode,
+            child: Route.RouteDraw(
+              enterPaths: enterPaths,
+              crossesPaths: crossesPaths,
+            ),
           ),
           // draw all the movig balls
           Stack(
@@ -300,6 +312,7 @@ class _BoardState extends State<Board> {
                     positionFromTop: ball.path[1].dy - 40,
                     positionFromLeft: ball.path[1].dx - 40,
                     gameOver: gameOver,
+                    controller: draggableController,
                   ),
                 )
                 .toList(),
@@ -324,62 +337,43 @@ class _BoardState extends State<Board> {
                   positionFromTop: 0,
                   positionFromLeft: 0,
                   gameOver: gameOver,
+                  controller: draggableController,
                 ),
-          // draw where will balls drop while dragged
-          Stack(
-              children: whereWillBallDrop.map((ball) {
-            return Positioned(
-                top: ball.path[0].dy - 40,
-                left: ball.path[0].dx - 40,
-                child: SimpleBall(
-                  color: ball.color,
-                  key: ball.key,
-                  ballDropTime: null,
-                ));
-          }).toList()),
           // drop places widget
           Stack(
-            children: enterPaths
-                .map(
-                  (enter) => Positioned(
-                    left: enter[0].dx - 40,
-                    top: enter[0].dy - 50,
-                    child: DragTarget<BallClass>(
-                      builder: (BuildContext context,
-                          List<BallClass> candidateData,
-                          List<dynamic> rejectedData) {
-                        return Container(
-                          height: 100,
-                          width: 80,
-                        );
-                      },
-                      onLeave: (ball) {
-                        setState(() {
-                          whereWillBallDrop.remove(ball);
-                        });
-                      },
-                      onWillAccept: (BallClass ball) {
-                        setState(() {
-                          whereWillBallDrop.add(ball);
-                          int index = whereWillBallDrop.indexOf(ball);
-                          whereWillBallDrop[index].path = enter;
-                        });
-                        HapticFeedback.heavyImpact();
-                        return true;
-                      },
-                      onAccept: (BallClass ball) {
-                        setState(() {
-                          whereWillBallDrop.remove(ball);
-                        });
-                        ball.path = enter;
+            children: enterPaths.map((enter) {
+              return Positioned(
+                left: enter[0].dx - 40,
+                top: enter[0].dy - 50,
+                child: DragTarget<BallClass>(
+                  builder: (BuildContext context, List<BallClass> candidateData,
+                      List<dynamic> rejectedData) {
+                    return Container(
+                      height: 100,
+                      width: 80,
+                      child: candidateData.isEmpty
+                          ? SimpleBall(color: Colors.transparent)
+                          : SimpleBall(color: candidateData[0].color),
+                    );
+                  },
+                  onLeave: (ball) {
+                    draggableController.onTarget(false, ball);
+                  },
+                  onWillAccept: (BallClass ball) {
+                    draggableController.onTarget(true, ball);
 
-                        _addBall(ball);
-                        return true;
-                      },
-                    ),
-                  ),
-                )
-                .toList(),
+                    HapticFeedback.heavyImpact();
+                    return true;
+                  },
+                  onAccept: (BallClass ball) {
+                    ball.path = enter;
+                    _addBall(ball);
+
+                    return true;
+                  },
+                ),
+              );
+            }).toList(),
           ),
           // End game button
           (gameOver)
