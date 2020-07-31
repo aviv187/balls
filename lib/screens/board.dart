@@ -72,7 +72,7 @@ class _BoardState extends State<Board> {
 
             dropBallTimer();
             if (_newBallTime < 60) {
-              _newBallTime += 5;
+              _newBallTime = (_newBallTime * 1.5).ceil();
             }
             newBallTimer(_newBallTime);
           } else {
@@ -147,6 +147,7 @@ class _BoardState extends State<Board> {
 
   // draw a new ball to drop
   void changeNewBall(int speed) {
+    print(_newBallTime);
     if (gameStopwatch == '00:00:00') {
       startGameTimer();
       newBallTimer(_newBallTime);
@@ -302,44 +303,6 @@ class _BoardState extends State<Board> {
                 )
                 .toList(),
           ),
-          //draw all the drgable droped balls
-          Stack(
-            children: dropBalls
-                .map(
-                  (ball) => DragBall(
-                    ball: ball,
-                    disposeOfTheBall: () => dropBalls.remove(ball),
-                    ballDropTime: null,
-                    positionFromTop: ball.path[1].dy - 40,
-                    positionFromLeft: ball.path[1].dx - 40,
-                    gameOver: gameOver,
-                    controller: draggableController,
-                  ),
-                )
-                .toList(),
-          ),
-          // draw new drgable ball
-          (droped)
-              ? Positioned(
-                  top: 20,
-                  left: 20,
-                  child: Text(
-                    'new ball in $_currentNewBallTime',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                )
-              : DragBall(
-                  ball: nextNewBall,
-                  disposeOfTheBall: () => changeNewBall(nextNewBall.speed),
-                  ballDropTime: _timeToDropBall,
-                  positionFromTop: 0,
-                  positionFromLeft: 0,
-                  gameOver: gameOver,
-                  controller: draggableController,
-                ),
           // drop places widget
           Stack(
             children: enterPaths.map((enter) {
@@ -378,6 +341,44 @@ class _BoardState extends State<Board> {
               );
             }).toList(),
           ),
+          //draw all the drgable droped balls
+          Stack(
+            children: dropBalls
+                .map(
+                  (ball) => DragBall(
+                    ball: ball,
+                    disposeOfTheBall: () => dropBalls.remove(ball),
+                    ballDropTime: null,
+                    positionFromTop: ball.path[1].dy - 40,
+                    positionFromLeft: ball.path[1].dx - 40,
+                    gameOver: gameOver,
+                    controller: draggableController,
+                  ),
+                )
+                .toList(),
+          ),
+          // draw new drgable ball
+          (droped)
+              ? Positioned(
+                  top: 20,
+                  left: 20,
+                  child: Text(
+                    'new ball in $_currentNewBallTime',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                )
+              : DragBall(
+                  ball: nextNewBall,
+                  disposeOfTheBall: () => changeNewBall(nextNewBall.speed),
+                  ballDropTime: _timeToDropBall,
+                  positionFromTop: 0,
+                  positionFromLeft: 0,
+                  gameOver: gameOver,
+                  controller: draggableController,
+                ),
           // End game button
           (gameOver)
               ? GameOverButton(

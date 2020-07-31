@@ -9,7 +9,7 @@ import '../helpFunction/changePageBuilder.dart';
 class ChooseBoard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    Size screenWidth = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: AppBar(
@@ -58,8 +58,8 @@ class ChooseBoard extends StatelessWidget {
                       context,
                       FadeRoute(
                         page: Board(
-                          height: screenWidth * 1.6,
-                          width: screenWidth,
+                          height: screenWidth.height * 0.7,
+                          width: screenWidth.width,
                           makeBoard: createBoardFunction,
                         ),
                       ),
