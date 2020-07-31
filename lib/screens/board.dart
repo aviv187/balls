@@ -8,7 +8,7 @@ import '../widgets/ball.dart';
 import '../models/ballModel.dart';
 import '../widgets/dragBall.dart';
 import '../widgets/gameOverButton.dart';
-import '../feedbackController.dart';
+import '../helpFunction/feedbackController.dart';
 
 class Board extends StatefulWidget {
   final double height;
@@ -45,7 +45,7 @@ class _BoardState extends State<Board> {
   //bal time to drop
   Timer timer2;
   int _timeToDropBall;
-  bool droped;
+  bool droped = false;
 
   // game timer
   Timer timer3;
@@ -69,7 +69,12 @@ class _BoardState extends State<Board> {
           if (_currentNewBallTime < 2) {
             timer.cancel();
             _currentNewBallTime = null;
+
             dropBallTimer();
+            if (_newBallTime < 60) {
+              _newBallTime += 5;
+            }
+            newBallTimer(_newBallTime);
           } else {
             _currentNewBallTime = _currentNewBallTime - 1;
           }
@@ -142,14 +147,9 @@ class _BoardState extends State<Board> {
 
   // draw a new ball to drop
   void changeNewBall(int speed) {
-    newBallTimer(_newBallTime);
-
     if (gameStopwatch == '00:00:00') {
       startGameTimer();
-    }
-
-    if (_newBallTime < 60) {
-      _newBallTime += 5;
+      newBallTimer(_newBallTime);
     }
 
     droped = true;
@@ -252,6 +252,7 @@ class _BoardState extends State<Board> {
       _newBallTime = 5;
       _timeToDropBall = null;
       _currentNewBallTime = null;
+      droped = false;
 
       gameOver = false;
     });
@@ -318,7 +319,7 @@ class _BoardState extends State<Board> {
                 .toList(),
           ),
           // draw new drgable ball
-          (_currentNewBallTime != null)
+          (droped)
               ? Positioned(
                   top: 20,
                   left: 20,
@@ -353,7 +354,9 @@ class _BoardState extends State<Board> {
                       width: 80,
                       child: candidateData.isEmpty
                           ? SimpleBall(color: Colors.transparent)
-                          : SimpleBall(color: candidateData[0].color),
+                          : SimpleBall(
+                              color: candidateData[candidateData.length - 1]
+                                  .color),
                     );
                   },
                   onLeave: (ball) {

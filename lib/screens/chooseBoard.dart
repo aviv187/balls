@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../boardCreatePath.dart';
+import '../helpFunction/boardCreatePath.dart';
 import './board.dart';
 import '../widgets/routeDraw.dart' as Route;
-import '../changePageBuilder.dart';
+import '../helpFunction/changePageBuilder.dart';
 
 class ChooseBoard extends StatelessWidget {
   @override

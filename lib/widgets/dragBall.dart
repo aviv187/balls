@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/ballModel.dart';
-import '../feedbackController.dart';
+import '../helpFunction/feedbackController.dart';
 
 class DragBall extends StatefulWidget {
   final BallClass ball;

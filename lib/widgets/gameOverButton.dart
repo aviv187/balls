@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../database.dart';
+import '../helpFunction/database.dart';
 
 class GameOverButton extends StatefulWidget {
   final bool gameOver;
