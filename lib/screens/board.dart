@@ -11,11 +11,11 @@ import '../widgets/gameOverButton.dart';
 import '../helpFunction/feedbackController.dart';
 
 class Board extends StatefulWidget {
-  final double height;
-  final double width;
-  final Function makeBoard;
+  final List<List<Offset>> enterPaths;
+  final List<List<List<Offset>>> crossesPaths;
+  final int heroTag;
 
-  Board({this.height, this.width, this.makeBoard});
+  Board({this.enterPaths, this.crossesPaths, this.heroTag});
   @override
   _BoardState createState() => _BoardState();
 }
@@ -23,9 +23,6 @@ class Board extends StatefulWidget {
 class _BoardState extends State<Board> {
   bool gameOver = false;
   bool gamePause = false;
-
-  List<List<Offset>> enterPaths = [];
-  List<List<List<Offset>>> crossesPaths = [];
 
   List<BallClass> balls = [];
   List<BallClass> dropBalls = [];
@@ -72,7 +69,7 @@ class _BoardState extends State<Board> {
 
             dropBallTimer();
             if (_newBallTime < 60) {
-              _newBallTime = (_newBallTime * 1.5).ceil();
+              _newBallTime = (_newBallTime * 1.5).floor();
             }
             newBallTimer(_newBallTime);
           } else {
@@ -147,7 +144,6 @@ class _BoardState extends State<Board> {
 
   // draw a new ball to drop
   void changeNewBall(int speed) {
-    print(_newBallTime);
     if (gameStopwatch == '00:00:00') {
       startGameTimer();
       newBallTimer(_newBallTime);
@@ -201,12 +197,12 @@ class _BoardState extends State<Board> {
 
   void changeBallRoute(Key key, List<Offset> path) {
     int index = balls.indexWhere((b) => b.key == key);
-    for (int i = 0; i < crossesPaths.length; i++) {
-      if (path[1] == crossesPaths[i][0][0]) {
+    for (int i = 0; i < widget.crossesPaths.length; i++) {
+      if (path[1] == widget.crossesPaths[i][0][0]) {
         setState(() {
-          balls[index].path = crossesPaths[i][0];
-          crossesPaths[i].add(crossesPaths[i][0]);
-          crossesPaths[i].removeAt(0);
+          balls[index].path = widget.crossesPaths[i][0];
+          widget.crossesPaths[i].add(widget.crossesPaths[i][0]);
+          widget.crossesPaths[i].removeAt(0);
         });
         return;
       }
@@ -261,16 +257,6 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
-    //make the board only fot the first time
-    if (enterPaths.length == 0) {
-      widget.makeBoard(
-        height: widget.height,
-        witdh: widget.width,
-        enters: enterPaths,
-        crosses: crossesPaths,
-      );
-    }
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -282,10 +268,10 @@ class _BoardState extends State<Board> {
         children: <Widget>[
           // draw all paths
           Hero(
-            tag: widget.makeBoard.hashCode,
+            tag: widget.heroTag,
             child: Route.RouteDraw(
-              enterPaths: enterPaths,
-              crossesPaths: crossesPaths,
+              enterPaths: widget.enterPaths,
+              crossesPaths: widget.crossesPaths,
             ),
           ),
           // draw all the movig balls
@@ -305,7 +291,7 @@ class _BoardState extends State<Board> {
           ),
           // drop places widget
           Stack(
-            children: enterPaths.map((enter) {
+            children: widget.enterPaths.map((enter) {
               return Positioned(
                 left: enter[0].dx - 40,
                 top: enter[0].dy - 50,

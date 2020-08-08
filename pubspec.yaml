@@ -30,6 +30,11 @@ dependencies:
   cupertino_icons: ^0.1.3
   sqflite:
   path_provider:
+  firebase_core:
+  firebase_analytics:
+  cloud_firestore:
+  firebase_database:
+  firebase_auth:
 
 dev_dependencies:
   flutter_test:

@@ -9,7 +9,7 @@ import '../helpFunction/changePageBuilder.dart';
 class ChooseBoard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Size screenWidth = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       appBar: AppBar(
@@ -24,6 +24,14 @@ class ChooseBoard extends StatelessWidget {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           children: makeBoardFunctions.map((createBoardFunction) {
+            List<List<Offset>> enterPaths = [];
+            List<List<List<Offset>>> crossesPaths = [];
+            createBoardFunction(
+              height: screenSize.height * 0.9,
+              witdh: screenSize.width,
+              enters: enterPaths,
+              crosses: crossesPaths,
+            );
             return Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -36,19 +44,19 @@ class ChooseBoard extends StatelessWidget {
                   highlightColor: Colors.transparent,
                   splashColor: Colors.transparent,
                   child: LayoutBuilder(builder: (ctx, constraints) {
-                    List<List<Offset>> enterPaths = [];
-                    List<List<List<Offset>>> crossesPaths = [];
+                    List<List<Offset>> enterPaths2 = [];
+                    List<List<List<Offset>>> crossesPaths2 = [];
                     createBoardFunction(
                       height: constraints.maxHeight,
                       witdh: constraints.maxWidth,
-                      enters: enterPaths,
-                      crosses: crossesPaths,
+                      enters: enterPaths2,
+                      crosses: crossesPaths2,
                     );
                     return Hero(
                       tag: createBoardFunction.hashCode,
                       child: Route.RouteDraw(
-                        crossesPaths: crossesPaths,
-                        enterPaths: enterPaths,
+                        crossesPaths: crossesPaths2,
+                        enterPaths: enterPaths2,
                       ),
                     );
                   }),
@@ -58,9 +66,9 @@ class ChooseBoard extends StatelessWidget {
                       context,
                       FadeRoute(
                         page: Board(
-                          height: screenWidth.height * 0.7,
-                          width: screenWidth.width,
-                          makeBoard: createBoardFunction,
+                          enterPaths: enterPaths,
+                          crossesPaths: crossesPaths,
+                          heroTag: createBoardFunction.hashCode,
                         ),
                       ),
                     );
