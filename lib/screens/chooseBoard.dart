@@ -24,14 +24,6 @@ class ChooseBoard extends StatelessWidget {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           children: makeBoardFunctions.map((createBoardFunction) {
-            List<List<Offset>> enterPaths = [];
-            List<List<List<Offset>>> crossesPaths = [];
-            createBoardFunction(
-              height: screenSize.height * 0.9,
-              witdh: screenSize.width,
-              enters: enterPaths,
-              crosses: crossesPaths,
-            );
             return Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -62,6 +54,16 @@ class ChooseBoard extends StatelessWidget {
                   }),
                   onPressed: () {
                     HapticFeedback.heavyImpact();
+
+                    List<List<Offset>> enterPaths = [];
+                    List<List<List<Offset>>> crossesPaths = [];
+                    createBoardFunction(
+                      height: screenSize.height * 0.9,
+                      witdh: screenSize.width,
+                      enters: enterPaths,
+                      crosses: crossesPaths,
+                    );
+
                     Navigator.push(
                       context,
                       FadeRoute(
@@ -69,6 +71,7 @@ class ChooseBoard extends StatelessWidget {
                           enterPaths: enterPaths,
                           crossesPaths: crossesPaths,
                           heroTag: createBoardFunction.hashCode,
+                          screenSize: screenSize,
                         ),
                       ),
                     );

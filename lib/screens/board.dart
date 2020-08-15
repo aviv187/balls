@@ -14,8 +14,14 @@ class Board extends StatefulWidget {
   final List<List<Offset>> enterPaths;
   final List<List<List<Offset>>> crossesPaths;
   final int heroTag;
+  final Size screenSize;
 
-  Board({this.enterPaths, this.crossesPaths, this.heroTag});
+  Board({
+    this.enterPaths,
+    this.crossesPaths,
+    this.heroTag,
+    this.screenSize,
+  });
   @override
   _BoardState createState() => _BoardState();
 }
@@ -30,7 +36,7 @@ class _BoardState extends State<Board> {
   // first draganle ball
   BallClass nextNewBall = BallClass(
     color: Colors.red,
-    speed: 26,
+    speed: 20000,
     key: UniqueKey(),
   );
 
@@ -152,45 +158,45 @@ class _BoardState extends State<Board> {
     droped = true;
 
     switch (speed) {
-      case 26:
+      case 20000:
         nextNewBall.color = Colors.orangeAccent.shade700;
-        nextNewBall.speed = 25;
+        nextNewBall.speed = 19000;
         nextNewBall.key = UniqueKey();
         break;
-      case 25:
+      case 19000:
         nextNewBall.color = Colors.yellow;
-        nextNewBall.speed = 23;
+        nextNewBall.speed = 18000;
         nextNewBall.key = UniqueKey();
         break;
-      case 23:
+      case 18000:
         nextNewBall.color = Colors.greenAccent.shade700;
-        nextNewBall.speed = 22;
+        nextNewBall.speed = 17000;
         nextNewBall.key = UniqueKey();
         break;
-      case 22:
+      case 17000:
         nextNewBall.color = Colors.blue.shade400;
-        nextNewBall.speed = 20;
+        nextNewBall.speed = 16000;
         nextNewBall.key = UniqueKey();
         Color(0xff00c853);
         break;
-      case 20:
+      case 16000:
         nextNewBall.color = Colors.deepPurple.shade400;
-        nextNewBall.speed = 19;
+        nextNewBall.speed = 15000;
         nextNewBall.key = UniqueKey();
         break;
-      case 19:
+      case 15000:
         nextNewBall.color = Colors.pink.shade300;
-        nextNewBall.speed = 17;
+        nextNewBall.speed = 14000;
         nextNewBall.key = UniqueKey();
         break;
-      case 17:
+      case 14000:
         nextNewBall.color = Colors.red;
-        nextNewBall.speed = 26;
+        nextNewBall.speed = 20000;
         nextNewBall.key = UniqueKey();
         break;
       default:
         nextNewBall.color = Colors.red;
-        nextNewBall.speed = 26;
+        nextNewBall.speed = 20000;
         nextNewBall.key = UniqueKey();
     }
   }
@@ -285,6 +291,7 @@ class _BoardState extends State<Board> {
                     speed: ball.speed,
                     path: ball.path,
                     gameOver: gameOver,
+                    screenSize: widget.screenSize,
                   ),
                 )
                 .toList(),

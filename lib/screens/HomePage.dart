@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import './chooseBoard.dart';
 import './scorePage.dart';
 import '../helpFunction/changePageBuilder.dart';
-import './online.dart';
+import './chooseGame.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -44,7 +43,7 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   FadeRoute(
-                    page: ChooseBoard(),
+                    page: ChooseGame(),
                   ),
                 );
               },
@@ -101,12 +100,6 @@ class HomePage extends StatelessWidget {
               ),
               onPressed: () {
                 HapticFeedback.heavyImpact();
-                Navigator.push(
-                  context,
-                  FadeRoute(
-                    page: Online(),
-                  ),
-                );
               },
             ),
           ],

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ class Ball extends StatefulWidget {
     this.path,
     this.speed,
     this.gameOver,
+    this.screenSize,
   }) : super(key: key);
 
   final Function onRouteCompleted;
@@ -17,6 +19,7 @@ class Ball extends StatefulWidget {
   final List<Offset> path;
   final int speed;
   final bool gameOver;
+  final Size screenSize;
 
   @override
   _RouteState createState() => _RouteState();
@@ -32,9 +35,7 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _duration = (getBallLength(getBallPath(widget.path[0], widget.path[1])) *
-            widget.speed)
-        .ceil();
+    getBallDuration();
 
     _controller = AnimationController(
         vsync: this, duration: Duration(milliseconds: _duration));
@@ -56,9 +57,7 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
   void didUpdateWidget(Ball oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.path != widget.path) {
-      _duration = (getBallLength(getBallPath(widget.path[0], widget.path[1])) *
-              widget.speed)
-          .ceil();
+      getBallDuration();
       _controller.duration = Duration(milliseconds: _duration);
 
       _controller.reset();
@@ -70,19 +69,21 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
     }
   }
 
+  void getBallDuration() {
+    double xLength =
+        (widget.path[0].dx - widget.path[1].dx).abs() / widget.screenSize.width;
+    double yLength = (widget.path[0].dy - widget.path[1].dy).abs() /
+        widget.screenSize.height;
+
+    double lineLength = sqrt(xLength * xLength + yLength * yLength);
+
+    _duration = (lineLength * widget.speed).ceil();
+  }
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  double getBallLength(Path path) {
-    PathMetrics pathMetrics = path.computeMetrics();
-    double length;
-    for (PathMetric pathMetric in pathMetrics) {
-      length = pathMetric.length;
-    }
-    return length;
   }
 
   @override
@@ -103,14 +104,6 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
   }
 }
 
-Path getBallPath(Offset p1, Offset p2) {
-  Path path = Path();
-  path.moveTo(p1.dx, p1.dy);
-  path.cubicTo(p1.dx, p2.dy, p2.dx, p1.dy, p2.dx, p2.dy);
-
-  return path;
-}
-
 class BallPainter extends CustomPainter {
   final double value;
   final Offset p1;
@@ -123,7 +116,11 @@ class BallPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()..color = color;
 
-    drawAxis(canvas, paint, getBallPath(p1, p2));
+    Path path = Path();
+    path.moveTo(p1.dx, p1.dy);
+    path.cubicTo(p1.dx, p2.dy, p2.dx, p1.dy, p2.dx, p2.dy);
+
+    drawAxis(canvas, paint, path);
   }
 
   drawAxis(Canvas canvas, Paint paintBall, Path path1) {
