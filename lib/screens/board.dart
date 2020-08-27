@@ -22,6 +22,7 @@ class Board extends StatefulWidget {
     this.heroTag,
     this.screenSize,
   });
+
   @override
   _BoardState createState() => _BoardState();
 }

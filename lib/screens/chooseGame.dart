@@ -22,7 +22,14 @@ class ChooseGame extends StatelessWidget {
           mainAxisSpacing: 10,
           children: <Widget>[
             TileWidget('ChooseBoard', ChooseBoard()),
-            TileWidget('Online', Online()),
+            TileWidget(
+                'Online',
+                Online(
+                  onOnline: () => print('onOnline'),
+                  onFoundPlayer: () => print('onFoundPlayer'),
+                  onLooking: () => print('onLooking'),
+                  onReady: () => print('onReady'),
+                )),
           ],
         ));
   }
