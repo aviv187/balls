@@ -8,19 +8,21 @@ import '../widgets/ball.dart';
 import '../models/ballModel.dart';
 import '../widgets/dragBall.dart';
 import '../widgets/gameOverButton.dart';
+import '../widgets/online.dart';
 import '../helpFunction/feedbackController.dart';
+import '../helpFunction/boardCreatePath.dart';
 
 class Board extends StatefulWidget {
-  final List<List<Offset>> enterPaths;
-  final List<List<List<Offset>>> crossesPaths;
+  final int boardNum;
   final int heroTag;
   final Size screenSize;
+  final bool online;
 
   Board({
-    this.enterPaths,
-    this.crossesPaths,
-    this.heroTag,
+    this.boardNum,
+    this.heroTag = 1,
     this.screenSize,
+    this.online = false,
   });
 
   @override
@@ -28,8 +30,10 @@ class Board extends StatefulWidget {
 }
 
 class _BoardState extends State<Board> {
+  List<List<Offset>> enterPaths = [];
+  List<List<List<Offset>>> crossesPaths = [];
+
   bool gameOver = false;
-  bool gamePause = false;
 
   List<BallClass> balls = [];
   List<BallClass> dropBalls = [];
@@ -146,6 +150,7 @@ class _BoardState extends State<Board> {
     if (timer3 != null) {
       timer3.cancel();
     }
+
     super.dispose();
   }
 
@@ -204,12 +209,12 @@ class _BoardState extends State<Board> {
 
   void changeBallRoute(Key key, List<Offset> path) {
     int index = balls.indexWhere((b) => b.key == key);
-    for (int i = 0; i < widget.crossesPaths.length; i++) {
-      if (path[1] == widget.crossesPaths[i][0][0]) {
+    for (int i = 0; i < crossesPaths.length; i++) {
+      if (path[1] == crossesPaths[i][0][0]) {
         setState(() {
-          balls[index].path = widget.crossesPaths[i][0];
-          widget.crossesPaths[i].add(widget.crossesPaths[i][0]);
-          widget.crossesPaths[i].removeAt(0);
+          balls[index].path = crossesPaths[i][0];
+          crossesPaths[i].add(crossesPaths[i][0]);
+          crossesPaths[i].removeAt(0);
         });
         return;
       }
@@ -262,136 +267,185 @@ class _BoardState extends State<Board> {
     });
   }
 
+  void makeBoard(boardNum) {
+    Function createBoardFunction = makeBoardFunctions[boardNum];
+
+    createBoardFunction(
+      height: widget.screenSize.height * 0.9,
+      witdh: widget.screenSize.width,
+      enters: enterPaths,
+      crosses: crossesPaths,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (enterPaths.isEmpty && widget.boardNum != null) {
+      makeBoard(widget.boardNum);
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('Balls'),
         centerTitle: true,
         elevation: 0,
-      ),
-      body: Stack(
-        children: <Widget>[
-          // draw all paths
-          Hero(
-            tag: widget.heroTag,
-            child: Route.RouteDraw(
-              enterPaths: widget.enterPaths,
-              crossesPaths: widget.crossesPaths,
-            ),
-          ),
-          // draw all the movig balls
-          Stack(
-            children: balls
-                .map(
-                  (ball) => Ball(
-                    key: ball.key,
-                    onRouteCompleted: changeBallRoute,
-                    color: ball.color,
-                    speed: ball.speed,
-                    path: ball.path,
-                    gameOver: gameOver,
-                    screenSize: widget.screenSize,
-                  ),
-                )
-                .toList(),
-          ),
-          // drop places widget
-          Stack(
-            children: widget.enterPaths.map((enter) {
-              return Positioned(
-                left: enter[0].dx - 40,
-                top: enter[0].dy - 50,
-                child: DragTarget<BallClass>(
-                  builder: (BuildContext context, List<BallClass> candidateData,
-                      List<dynamic> rejectedData) {
-                    return Container(
-                      height: 100,
-                      width: 80,
-                      child: candidateData.isEmpty
-                          ? SimpleBall(color: Colors.transparent)
-                          : SimpleBall(
-                              color: candidateData[candidateData.length - 1]
-                                  .color),
-                    );
+        actions: [
+          widget.online == true
+              ? Online(
+                  onReady: (number) {
+                    setState(() {
+                      makeBoard(number);
+                    });
+                    print('onReady');
                   },
-                  onLeave: (ball) {
-                    draggableController.onTarget(false, ball);
+                  onOnline: () {
+                    print('onOnline');
                   },
-                  onWillAccept: (BallClass ball) {
-                    draggableController.onTarget(true, ball);
-
-                    HapticFeedback.heavyImpact();
-                    return true;
+                  onLooking: () {
+                    print('onLooking');
                   },
-                  onAccept: (BallClass ball) {
-                    ball.path = enter;
-                    _addBall(ball);
-
-                    return true;
+                  onFoundPlayer: () {
+                    print('onFoundPlayer');
                   },
-                ),
-              );
-            }).toList(),
-          ),
-          //draw all the drgable droped balls
-          Stack(
-            children: dropBalls
-                .map(
-                  (ball) => DragBall(
-                    ball: ball,
-                    disposeOfTheBall: () => dropBalls.remove(ball),
-                    ballDropTime: null,
-                    positionFromTop: ball.path[1].dy - 40,
-                    positionFromLeft: ball.path[1].dx - 40,
-                    gameOver: gameOver,
-                    controller: draggableController,
-                  ),
-                )
-                .toList(),
-          ),
-          // draw new drgable ball
-          (droped)
-              ? Positioned(
-                  top: 20,
-                  left: 20,
-                  child: Text(
-                    'new ball in $_currentNewBallTime',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                )
-              : DragBall(
-                  ball: nextNewBall,
-                  disposeOfTheBall: () => changeNewBall(nextNewBall.speed),
-                  ballDropTime: _timeToDropBall,
-                  positionFromTop: 0,
-                  positionFromLeft: 0,
-                  gameOver: gameOver,
-                  controller: draggableController,
-                ),
-          // End game button
-          (gameOver)
-              ? GameOverButton(
-                  gameOver: gameOver,
-                  restartGame: restartGame,
-                  gameEndTime: gameStopwatch,
+                  makeBoard: makeBoard,
                 )
               : Container(),
-          //draw the game timer
-          Positioned(
-            top: 20,
-            right: 20,
-            child: Container(
-              width: 70,
-              child: Text('$gameStopwatch'),
-            ),
-          )
         ],
       ),
+      body: enterPaths.isEmpty
+          ? Center(
+              child: Container(
+                  height: widget.screenSize.width - 100,
+                  width: widget.screenSize.width - 100,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 10,
+                  )),
+            )
+          : Stack(
+              children: <Widget>[
+                // draw all paths
+                Hero(
+                  tag: widget.heroTag,
+                  child: Route.RouteDraw(
+                    enterPaths: enterPaths,
+                    crossesPaths: crossesPaths,
+                  ),
+                ),
+                // draw all the movig balls
+                Stack(
+                  children: balls
+                      .map(
+                        (ball) => Ball(
+                          key: ball.key,
+                          onRouteCompleted: changeBallRoute,
+                          color: ball.color,
+                          speed: ball.speed,
+                          path: ball.path,
+                          gameOver: gameOver,
+                          screenSize: widget.screenSize,
+                        ),
+                      )
+                      .toList(),
+                ),
+                // drop places widget
+                Stack(
+                  children: enterPaths.map((enter) {
+                    return Positioned(
+                      left: enter[0].dx - 40,
+                      top: enter[0].dy - 50,
+                      child: DragTarget<BallClass>(
+                        builder: (BuildContext context,
+                            List<BallClass> candidateData,
+                            List<dynamic> rejectedData) {
+                          return Container(
+                            height: 100,
+                            width: 80,
+                            child: candidateData.isEmpty
+                                ? SimpleBall(color: Colors.transparent)
+                                : SimpleBall(
+                                    color:
+                                        candidateData[candidateData.length - 1]
+                                            .color),
+                          );
+                        },
+                        onLeave: (ball) {
+                          draggableController.onTarget(false, ball);
+                        },
+                        onWillAccept: (BallClass ball) {
+                          draggableController.onTarget(true, ball);
+
+                          HapticFeedback.heavyImpact();
+                          return true;
+                        },
+                        onAccept: (BallClass ball) {
+                          ball.path = enter;
+                          _addBall(ball);
+
+                          return true;
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
+                //draw all the drgable droped balls
+                Stack(
+                  children: dropBalls
+                      .map(
+                        (ball) => DragBall(
+                          ball: ball,
+                          disposeOfTheBall: () => dropBalls.remove(ball),
+                          ballDropTime: null,
+                          positionFromTop: ball.path[1].dy - 40,
+                          positionFromLeft: ball.path[1].dx - 40,
+                          gameOver: gameOver,
+                          controller: draggableController,
+                        ),
+                      )
+                      .toList(),
+                ),
+                // draw new drgable ball
+                (droped)
+                    ? Positioned(
+                        top: 20,
+                        left: 20,
+                        child: Text(
+                          'new ball in $_currentNewBallTime',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      )
+                    : DragBall(
+                        ball: nextNewBall,
+                        disposeOfTheBall: () =>
+                            changeNewBall(nextNewBall.speed),
+                        ballDropTime: _timeToDropBall,
+                        positionFromTop: 0,
+                        positionFromLeft: 0,
+                        gameOver: gameOver,
+                        controller: draggableController,
+                      ),
+                // End game button
+                (gameOver)
+                    ? GameOverButton(
+                        gameOver: gameOver,
+                        restartGame: restartGame,
+                        gameEndTime: gameStopwatch,
+                      )
+                    : Container(),
+                //draw the game timer
+                Positioned(
+                  top: 20,
+                  right: 20,
+                  child: Container(
+                    width: 70,
+                    child: Text('$gameStopwatch'),
+                  ),
+                )
+              ],
+            ),
     );
   }
 }

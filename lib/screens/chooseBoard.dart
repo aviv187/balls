@@ -7,10 +7,12 @@ import '../widgets/routeDraw.dart' as Route;
 import '../helpFunction/changePageBuilder.dart';
 
 class ChooseBoard extends StatelessWidget {
+  final Size screenSize;
+
+  ChooseBoard(this.screenSize);
+
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Balls'),
@@ -55,21 +57,12 @@ class ChooseBoard extends StatelessWidget {
                   onPressed: () {
                     HapticFeedback.heavyImpact();
 
-                    List<List<Offset>> enterPaths = [];
-                    List<List<List<Offset>>> crossesPaths = [];
-                    createBoardFunction(
-                      height: screenSize.height * 0.9,
-                      witdh: screenSize.width,
-                      enters: enterPaths,
-                      crosses: crossesPaths,
-                    );
-
                     Navigator.push(
                       context,
                       FadeRoute(
                         page: Board(
-                          enterPaths: enterPaths,
-                          crossesPaths: crossesPaths,
+                          boardNum:
+                              makeBoardFunctions.indexOf(createBoardFunction),
                           heroTag: createBoardFunction.hashCode,
                           screenSize: screenSize,
                         ),

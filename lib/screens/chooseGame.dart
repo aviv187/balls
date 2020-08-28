@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import './chooseBoard.dart';
-import './online.dart';
+import './board.dart';
 import '../helpFunction/changePageBuilder.dart';
 
 class ChooseGame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
         appBar: AppBar(
           title: Text('Balls'),
@@ -21,15 +23,14 @@ class ChooseGame extends StatelessWidget {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           children: <Widget>[
-            TileWidget('ChooseBoard', ChooseBoard()),
+            TileWidget('ChooseBoard', ChooseBoard(screenSize)),
             TileWidget(
-                'Online',
-                Online(
-                  onOnline: () => print('onOnline'),
-                  onFoundPlayer: () => print('onFoundPlayer'),
-                  onLooking: () => print('onLooking'),
-                  onReady: () => print('onReady'),
-                )),
+              'Online',
+              Board(
+                screenSize: screenSize,
+                online: true,
+              ),
+            ),
           ],
         ));
   }

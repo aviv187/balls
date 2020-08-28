@@ -5,18 +5,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
+import '../helpFunction/boardCreatePath.dart';
+
 class Online extends StatefulWidget {
-  Online(
-      {Key key,
-      this.onOnline,
-      this.onFoundPlayer,
-      this.onLooking,
-      this.onReady});
+  Online({
+    Key key,
+    this.onOnline,
+    this.onFoundPlayer,
+    this.onLooking,
+    this.onReady,
+    this.screenSize,
+    this.makeBoard,
+  });
 
   final Function onOnline;
   final Function onLooking;
   final Function onFoundPlayer;
   final Function onReady;
+  final Function makeBoard;
+  final Size screenSize;
 
   @override
   _OnlineState createState() => _OnlineState();
@@ -25,7 +32,7 @@ class Online extends StatefulWidget {
 class _OnlineState extends State<Online> {
   bool online = false;
   bool looking = false;
-  String gameId;
+  int gameId;
   int playerNumber;
 
   DatabaseReference userRef;
@@ -36,6 +43,12 @@ class _OnlineState extends State<Online> {
   var gameStartListener;
 
   String uid;
+
+  @override
+  void initState() {
+    super.initState();
+    _signIn();
+  }
 
   @override
   void dispose() {
@@ -60,7 +73,9 @@ class _OnlineState extends State<Online> {
       print('child was removed: ${event.snapshot.key}');
     });
     gameStartListener = gameRef.onChildAdded.listen((event) {
-      widget.onReady();
+      int boardNum = gameId.toInt() % makeBoardFunctions.length;
+
+      widget.onReady(boardNum);
     });
   }
 
@@ -117,9 +132,7 @@ class _OnlineState extends State<Online> {
   }
 
   void _createGame(player, playerNumber) {
-    setState(() {
-      gameId = _generateUniqueGameId(16);
-    });
+    gameId = _generateUniqueGameId(16);
 
     _updateGame(gameId, playerNumber);
     dbRef.child('users/public/$player').update({'gameId': gameId});
@@ -127,9 +140,9 @@ class _OnlineState extends State<Online> {
     print('player: $player');
   }
 
-  String _generateUniqueGameId(int length) {
+  int _generateUniqueGameId(int length) {
     Random rand = new Random();
-    return rand.nextInt(1000000).toString();
+    return rand.nextInt(1000000);
   }
 
   void _addPlayerToWaitingList(uid) {
@@ -148,10 +161,8 @@ class _OnlineState extends State<Online> {
     userListener = userRef.onChildAdded.listen((Event event) {
       print('child added: ${event.snapshot.key}');
       if (event.snapshot.key == 'gameId') {
-        setState(() => gameId = event.snapshot.value);
+        gameId = event.snapshot.value;
         _updateGame(gameId, playerNumber);
-
-        widget.onReady();
 
         userListener.cancel();
         userRef.remove();
@@ -168,28 +179,8 @@ class _OnlineState extends State<Online> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Balls'),
-        centerTitle: true,
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          Text('Game: $gameId'),
-          Text(online ? 'Online' : 'Offline'),
-          looking
-              ? CircularProgressIndicator()
-              : FlatButton(
-                  onPressed: () {
-                    _signIn();
-                    setState(() {
-                      looking = true;
-                    });
-                  },
-                  child: Text('look for a game')),
-        ],
-      ),
+    return Container(
+      decoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle),
     );
   }
 }
