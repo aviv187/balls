@@ -6,11 +6,15 @@ class GameOverButton extends StatefulWidget {
   final bool gameOver;
   final Function restartGame;
   final String gameEndTime;
+  final bool online;
+  final bool loser;
 
   GameOverButton({
     this.gameOver,
     this.restartGame,
     this.gameEndTime,
+    this.online,
+    this.loser,
   });
 
   @override
@@ -45,7 +49,7 @@ class _GameOverButtonState extends State<GameOverButton> {
           children: <Widget>[
             SizedBox(height: 80),
             Text(
-              'Game Over',
+              widget.online ? (widget.loser ? 'Loser' : 'Winner') : 'Game Over',
               style: TextStyle(
                 fontSize: 50,
                 fontWeight: FontWeight.bold,
@@ -71,7 +75,7 @@ class _GameOverButtonState extends State<GameOverButton> {
                 ),
               ),
               onPressed: () async {
-                widget.restartGame();
+                widget.online ? Navigator.pop(context) : widget.restartGame();
 
                 canSave = false;
               },

@@ -34,6 +34,7 @@ class _BoardState extends State<Board> {
   List<List<List<Offset>>> crossesPaths = [];
 
   bool gameOver = false;
+  bool loser = true;
 
   List<BallClass> balls = [];
   List<BallClass> dropBalls = [];
@@ -69,6 +70,8 @@ class _BoardState extends State<Board> {
 
   // timer for new ball dropping
   void newBallTimer(int startTime) {
+    dropBallTimer();
+
     _currentNewBallTime = startTime;
     timer1 = new Timer.periodic(
       Duration(seconds: 1),
@@ -78,9 +81,11 @@ class _BoardState extends State<Board> {
             timer.cancel();
             _currentNewBallTime = null;
 
-            dropBallTimer();
             if (_newBallTime < 60) {
-              _newBallTime = (_newBallTime * 1.5).floor();
+              _newBallTime = (_newBallTime * 1.6).floor();
+              if (_newBallTime > 60) {
+                _newBallTime = 60;
+              }
             }
             newBallTimer(_newBallTime);
           } else {
@@ -104,12 +109,14 @@ class _BoardState extends State<Board> {
             _timeToDropBall = null;
 
             if (!droped) {
-              gameOver = true;
+              setState(() {
+                gameOver = true;
+              });
               timer1.cancel();
               timer2.cancel();
               timer3.cancel();
             }
-          } else {
+          } else if (_timeToDropBall != null) {
             _timeToDropBall = _timeToDropBall - 1;
           }
         },
@@ -141,26 +148,15 @@ class _BoardState extends State<Board> {
 
   @override
   void dispose() {
-    if (timer1 != null) {
-      timer1.cancel();
-    }
-    if (timer2 != null) {
-      timer2.cancel();
-    }
-    if (timer3 != null) {
-      timer3.cancel();
-    }
+    timer1?.cancel();
+    timer2?.cancel();
+    timer3?.cancel();
 
     super.dispose();
   }
 
   // draw a new ball to drop
   void changeNewBall(int speed) {
-    if (gameStopwatch == '00:00:00') {
-      startGameTimer();
-      newBallTimer(_newBallTime);
-    }
-
     droped = true;
 
     switch (speed) {
@@ -226,7 +222,9 @@ class _BoardState extends State<Board> {
       balls.removeAt(index);
 
       if (dropBalls.length == 3) {
-        gameOver = true;
+        setState(() {
+          gameOver = true;
+        });
         timer1.cancel();
         timer2.cancel();
         timer3.cancel();
@@ -264,6 +262,9 @@ class _BoardState extends State<Board> {
       droped = false;
 
       gameOver = false;
+
+      startGameTimer();
+      newBallTimer(_newBallTime);
     });
   }
 
@@ -282,37 +283,38 @@ class _BoardState extends State<Board> {
   Widget build(BuildContext context) {
     if (enterPaths.isEmpty && widget.boardNum != null) {
       makeBoard(widget.boardNum);
+      startGameTimer();
+      newBallTimer(_newBallTime);
     }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text('Balls'),
-        centerTitle: true,
-        elevation: 0,
-        actions: [
-          widget.online == true
-              ? Online(
-                  onReady: (number) {
-                    setState(() {
-                      makeBoard(number);
-                    });
-                    print('onReady');
-                  },
-                  onOnline: () {
-                    print('onOnline');
-                  },
-                  onLooking: () {
-                    print('onLooking');
-                  },
-                  onFoundPlayer: () {
-                    print('onFoundPlayer');
-                  },
-                  makeBoard: makeBoard,
-                )
-              : Container(),
-        ],
-      ),
+          title: Text('Balls'),
+          centerTitle: true,
+          elevation: 0,
+          actions: [
+            widget.online == true
+                ? Online(
+                    onReady: (int number) {
+                      setState(() {
+                        makeBoard(number);
+                      });
+
+                      if (gameStopwatch == '00:00:00') {
+                        startGameTimer();
+                        newBallTimer(_newBallTime);
+                      }
+                    },
+                    gameOver: gameOver,
+                    isLoser: (bool didlose) {
+                      setState(() {
+                        loser = didlose;
+                      });
+                    },
+                  )
+                : Container(),
+          ]),
       body: enterPaths.isEmpty
           ? Center(
               child: Container(
@@ -433,6 +435,8 @@ class _BoardState extends State<Board> {
                         gameOver: gameOver,
                         restartGame: restartGame,
                         gameEndTime: gameStopwatch,
+                        online: widget.online,
+                        loser: loser,
                       )
                     : Container(),
                 //draw the game timer

@@ -8,30 +8,18 @@ import 'package:flutter/material.dart';
 import '../helpFunction/boardCreatePath.dart';
 
 class Online extends StatefulWidget {
-  Online({
-    Key key,
-    this.onOnline,
-    this.onFoundPlayer,
-    this.onLooking,
-    this.onReady,
-    this.screenSize,
-    this.makeBoard,
-  });
+  Online({Key key, this.onReady, this.screenSize, this.gameOver, this.isLoser});
 
-  final Function onOnline;
-  final Function onLooking;
-  final Function onFoundPlayer;
   final Function onReady;
-  final Function makeBoard;
+  final Function isLoser;
   final Size screenSize;
+  final bool gameOver;
 
   @override
   _OnlineState createState() => _OnlineState();
 }
 
 class _OnlineState extends State<Online> {
-  bool online = false;
-  bool looking = false;
   int gameId;
   int playerNumber;
 
@@ -48,6 +36,16 @@ class _OnlineState extends State<Online> {
   void initState() {
     super.initState();
     _signIn();
+  }
+
+  @override
+  void didUpdateWidget(Online oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.gameOver != true) {
+      if (widget.gameOver == true) {
+        _endGame();
+      }
+    }
   }
 
   @override
@@ -70,7 +68,15 @@ class _OnlineState extends State<Online> {
     gameRef = dbRef.child('games/$gameId');
     gameRef.update({'player$playerNumber': uid});
     gameListener = gameRef.onChildRemoved.listen((Event event) {
-      print('child was removed: ${event.snapshot.key}');
+      if (event.snapshot.key == 'player$playerNumber') {
+        widget.isLoser(true);
+        // print('loser');
+        gameListener?.cancel();
+      } else {
+        widget.isLoser(false);
+        // print('winner');
+        gameListener?.cancel();
+      }
     });
     gameStartListener = gameRef.onChildAdded.listen((event) {
       int boardNum = gameId.toInt() % makeBoardFunctions.length;
@@ -84,11 +90,6 @@ class _OnlineState extends State<Online> {
       AuthResult response = await FirebaseAuth.instance.signInAnonymously();
       uid = response.user.uid;
 
-      setState(() {
-        online = true;
-      });
-      widget.onOnline();
-
       dbRef = FirebaseDatabase.instance.reference();
       _lookForPlayers(uid);
     } catch (e) {
@@ -97,8 +98,6 @@ class _OnlineState extends State<Online> {
   }
 
   void _lookForPlayers(uid) {
-    widget.onLooking();
-
     dbRef
         .child('users/public')
         .orderByChild('entered')
@@ -113,8 +112,6 @@ class _OnlineState extends State<Online> {
           if (key == uid || waitTimeMiliSec > 60000) {
             _makeUnavailable(key);
           } else {
-            widget.onFoundPlayer();
-
             if (player == null) {
               player = key;
             }
@@ -146,18 +143,24 @@ class _OnlineState extends State<Online> {
   }
 
   void _addPlayerToWaitingList(uid) {
-    Timer handler = Timer(Duration(minutes: 1), () {
-      setState(() {
-        looking = false;
-        online = false;
-      });
-      _makeUnavailable(uid);
-    });
-
     playerNumber = 2;
 
     userRef = dbRef.child('users/public/$uid');
     userRef.update({'entered': DateTime.now().millisecondsSinceEpoch});
+
+    Timer pophandler;
+    Timer makeUnavailablehandler = Timer(Duration(minutes: 1), () {
+      _makeUnavailable(uid);
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text('sorry, we could not find another player'),
+        ),
+      );
+      pophandler = Timer(Duration(seconds: 2), () {
+        Navigator.pop(context);
+      });
+    });
+
     userListener = userRef.onChildAdded.listen((Event event) {
       print('child added: ${event.snapshot.key}');
       if (event.snapshot.key == 'gameId') {
@@ -168,7 +171,10 @@ class _OnlineState extends State<Online> {
         userRef.remove();
         print('I was changed. ${event.snapshot.key} = ${event.snapshot.value}');
 
-        handler.cancel();
+        makeUnavailablehandler.cancel();
+        if (pophandler != null) {
+          pophandler.cancel();
+        }
       }
     });
   }
@@ -179,8 +185,10 @@ class _OnlineState extends State<Online> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+    return IconButton(
+      icon: Icon(Icons.wifi_tethering),
+      onPressed: null,
+      disabledColor: Colors.white,
     );
   }
 }
