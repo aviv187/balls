@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "107835556337",
+    "firebase_url": "https://balls-d220c.firebaseio.com",
+    "project_id": "balls-d220c",
+    "storage_bucket": "balls-d220c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107835556337:android:d28fee0551dfbe4183c450",
+        "android_client_info": {
+          "package_name": "com.avivb35.ballGame"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107835556337-e85mvddfr1nkqg1uploo2bpli60j8ijk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALa-hLHNDa5DB2GfiakSlCZHe5tZJMTmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107835556337-e85mvddfr1nkqg1uploo2bpli60j8ijk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "107835556337-sa76ffg93nn8nrvf0ed6r1kl0jote4u5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.avivb35.ballGame"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

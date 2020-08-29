@@ -1,36 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import './board.dart';
+import 'screens/HomePage.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return MaterialApp(
       title: 'Ball Game',
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: MyHomePage(),
+      home: HomePage(),
     );
   }
 }
-
-class MyHomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Game'),
-        elevation: 0,
-      ),
-      body: SafeArea(
-        child: Board(entries: 7, exits: 8,)
-      ),
-    );
-  }
-}
-
-
-

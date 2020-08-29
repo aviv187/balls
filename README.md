@@ -1,6 +1,6 @@
 # ballGame
 
-This is the Balls game
+This is the Balls game (version 1.0)
 
 ## Getting Started
 
