@@ -251,7 +251,7 @@ class _BoardState extends State<Board> {
 
       nextNewBall = BallClass(
         color: Colors.red,
-        speed: 26,
+        speed: 20000,
         key: UniqueKey(),
       );
 
