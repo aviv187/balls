@@ -70,14 +70,20 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
   }
 
   void getBallDuration() {
-    double xLength =
-        (widget.path[0].dx - widget.path[1].dx).abs() / widget.screenSize.width;
-    double yLength = (widget.path[0].dy - widget.path[1].dy).abs() /
-        widget.screenSize.height;
+    double pathLength;
 
-    double lineLength = sqrt(xLength * xLength + yLength * yLength);
+    Offset p1 = Offset(widget.path[0].dx / widget.screenSize.width,
+        widget.path[0].dy / widget.screenSize.height);
+    Offset p2 = Offset(widget.path[1].dx / widget.screenSize.width,
+        widget.path[1].dy / widget.screenSize.height);
 
-    _duration = (lineLength * widget.speed).ceil();
+    Path path = pathBuild(p1, p2);
+    PathMetrics pathMetrics = path.computeMetrics();
+    for (PathMetric pathMetric in pathMetrics) {
+      pathLength = pathMetric.length;
+    }
+
+    _duration = (pathLength * widget.speed).ceil();
   }
 
   @override
@@ -104,6 +110,14 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
   }
 }
 
+Path pathBuild(Offset p1, Offset p2) {
+  Path path = Path();
+  path.moveTo(p1.dx, p1.dy);
+  path.cubicTo(p1.dx, p2.dy, p2.dx, p1.dy, p2.dx, p2.dy);
+
+  return path;
+}
+
 class BallPainter extends CustomPainter {
   final double value;
   final Offset p1;
@@ -116,15 +130,11 @@ class BallPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()..color = color;
 
-    Path path = Path();
-    path.moveTo(p1.dx, p1.dy);
-    path.cubicTo(p1.dx, p2.dy, p2.dx, p1.dy, p2.dx, p2.dy);
-
-    drawAxis(canvas, paint, path);
+    drawAxis(canvas, paint, pathBuild(p1, p2));
   }
 
-  drawAxis(Canvas canvas, Paint paintBall, Path path1) {
-    PathMetrics pathMetrics = path1.computeMetrics();
+  drawAxis(Canvas canvas, Paint paintBall, Path path) {
+    PathMetrics pathMetrics = path.computeMetrics();
     for (PathMetric pathMetric in pathMetrics) {
       Path extractPath = pathMetric.extractPath(
         0.0,

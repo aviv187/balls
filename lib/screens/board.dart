@@ -268,7 +268,9 @@ class _BoardState extends State<Board> {
     });
   }
 
-  void makeBoard(boardNum) {
+  void updateTime() {}
+
+  void makeBoard(int boardNum) {
     Function createBoardFunction = makeBoardFunctions[boardNum];
 
     createBoardFunction(

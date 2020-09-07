@@ -23,9 +23,9 @@ class ChooseGame extends StatelessWidget {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           children: <Widget>[
-            TileWidget('ChooseBoard', ChooseBoard(screenSize)),
+            TileWidget('Play', ChooseBoard(screenSize)),
             TileWidget(
-              'Online',
+              'Play Online',
               Board(
                 screenSize: screenSize,
                 online: true,
