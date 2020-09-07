@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -72,10 +71,11 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
   void getBallDuration() {
     double pathLength;
 
+    //make the balls move at the same speed, no matter the screen size
     Offset p1 = Offset(widget.path[0].dx / widget.screenSize.width,
-        widget.path[0].dy / widget.screenSize.height);
+        widget.path[0].dy / (widget.screenSize.height * 0.9));
     Offset p2 = Offset(widget.path[1].dx / widget.screenSize.width,
-        widget.path[1].dy / widget.screenSize.height);
+        widget.path[1].dy / (widget.screenSize.height * 0.9));
 
     Path path = pathBuild(p1, p2);
     PathMetrics pathMetrics = path.computeMetrics();

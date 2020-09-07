@@ -133,7 +133,6 @@ class _OnlineState extends State<Online> {
 
     _updateGame(gameId, playerNumber);
     dbRef.child('users/public/$player').update({'gameId': gameId});
-    // TODO: if player wait more than X seconds in game node, delete and start over
     print('player: $player');
   }
 
