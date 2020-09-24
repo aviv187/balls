@@ -12,7 +12,7 @@ class ChooseGame extends StatelessWidget {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text('Balls'),
+          title: Text('Choose Game'),
           centerTitle: true,
           elevation: 0,
         ),

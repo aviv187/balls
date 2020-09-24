@@ -58,33 +58,6 @@ class _OnlineState extends State<Online> {
     super.dispose();
   }
 
-  void _endGame() {
-    if (gameRef != null) {
-      gameRef.update({'player$playerNumber': null});
-    }
-  }
-
-  void _updateGame(gameId, playerNumber) {
-    gameRef = dbRef.child('games/$gameId');
-    gameRef.update({'player$playerNumber': uid});
-    gameListener = gameRef.onChildRemoved.listen((Event event) {
-      if (event.snapshot.key == 'player$playerNumber') {
-        widget.isLoser(true);
-        // print('loser');
-        gameListener?.cancel();
-      } else {
-        widget.isLoser(false);
-        // print('winner');
-        gameListener?.cancel();
-      }
-    });
-    gameStartListener = gameRef.onChildAdded.listen((event) {
-      int boardNum = gameId.toInt() % makeBoardFunctions.length;
-
-      widget.onReady(boardNum);
-    });
-  }
-
   Future<void> _signIn() async {
     try {
       AuthResult response = await FirebaseAuth.instance.signInAnonymously();
@@ -125,6 +98,31 @@ class _OnlineState extends State<Online> {
         playerNumber = 1;
         _createGame(player, playerNumber);
       }
+    });
+  }
+
+  void _endGame() {
+    gameRef?.update({'player$playerNumber': null});
+  }
+
+  void _updateGame(gameId, playerNumber) {
+    gameRef = dbRef.child('games/$gameId');
+    gameRef.update({'player$playerNumber': uid});
+
+    gameListener = gameRef.onChildRemoved.listen((Event event) {
+      if (event.snapshot.key == 'player$playerNumber') {
+        widget.isLoser(true);
+        gameListener?.cancel();
+      } else {
+        widget.isLoser(false);
+        gameListener?.cancel();
+      }
+    });
+
+    gameStartListener = gameRef.onChildAdded.listen((event) {
+      int boardNum = gameId.toInt() % makeBoardFunctions.length;
+
+      widget.onReady(boardNum);
     });
   }
 

@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import '../helpFunction/database.dart';
@@ -24,21 +25,58 @@ class GameOverButton extends StatefulWidget {
 class _GameOverButtonState extends State<GameOverButton> {
   TextEditingController _textEditingController = TextEditingController();
   bool canSave = true;
+  DatabaseReference scoreRef;
+
+  void saveScoreOnline(String name, String time) {
+    try {
+      scoreRef = FirebaseDatabase.instance.reference().child('scores');
+      scoreRef.once().then((DataSnapshot snapshot) {
+        List<dynamic> scoresList = snapshot.value;
+
+        String nameHolder = name;
+        String timeHolder = time;
+
+        for (int i = 0; i < 10; i++) {
+          try {
+            String oldPlayerTime = scoresList[i]['score'];
+            int isTheNewTimeBetter = timeHolder.compareTo(oldPlayerTime);
+
+            if (isTheNewTimeBetter == 1) {
+              scoreRef.child(i.toString()).update({
+                'score': timeHolder,
+                'name': nameHolder,
+              });
+              timeHolder = oldPlayerTime;
+              nameHolder = scoresList[i]['name'];
+            }
+          } catch (e) {
+            scoreRef.child(i.toString()).update({
+              'score': timeHolder,
+              'name': nameHolder,
+            });
+            return;
+          }
+        }
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _insert(String name, String time) async {
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnName: name,
+      DatabaseHelper.columnScore: time,
+    };
+
+    await DatabaseHelper.instance.insert(row);
+  }
 
   @override
   Widget build(BuildContext context) {
     double opacity = 1;
     if (!widget.gameOver) {
       opacity = 0;
-    }
-
-    void _insert(String name, String time) async {
-      Map<String, dynamic> row = {
-        DatabaseHelper.columnName: name,
-        DatabaseHelper.columnScore: time,
-      };
-
-      await DatabaseHelper.instance.insert(row);
     }
 
     return AnimatedOpacity(
@@ -112,8 +150,11 @@ class _GameOverButtonState extends State<GameOverButton> {
                   ? () async {
                       if (_textEditingController.text == '') {
                         _insert('player', widget.gameEndTime);
+                        saveScoreOnline('player', widget.gameEndTime);
                       } else {
                         _insert(
+                            _textEditingController.text, widget.gameEndTime);
+                        saveScoreOnline(
                             _textEditingController.text, widget.gameEndTime);
                       }
 

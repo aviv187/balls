@@ -41,9 +41,16 @@ class DatabaseHelper {
       $columnScore TEXT NOT NULL)''');
   }
 
-  Future<int> insert(Map<String, dynamic> row) async {
+  Future insert(Map<String, dynamic> row) async {
     final Database db = await instance.database;
-    return await db.insert(_tableName, row);
+    await db.insert(_tableName, row);
+    List<Map<String, dynamic>> scores =
+        await db.query(_tableName, orderBy: 'score DESC');
+
+    if (scores.length > 10) {
+      int lastScoreId = scores[10]['_id'];
+      await db.delete(_tableName, where: '_id = ?', whereArgs: [lastScoreId]);
+    }
   }
 
   Future<List<Map<String, dynamic>>> queryAll() async {

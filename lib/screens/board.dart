@@ -42,7 +42,7 @@ class _BoardState extends State<Board> {
   // first draganle ball
   BallClass nextNewBall = BallClass(
     color: Colors.red,
-    speed: 20000,
+    speed: 15000,
     key: UniqueKey(),
   );
 
@@ -160,45 +160,45 @@ class _BoardState extends State<Board> {
     droped = true;
 
     switch (speed) {
-      case 20000:
-        nextNewBall.color = Colors.orangeAccent.shade700;
-        nextNewBall.speed = 19000;
-        nextNewBall.key = UniqueKey();
-        break;
-      case 19000:
-        nextNewBall.color = Colors.yellow;
-        nextNewBall.speed = 18000;
-        nextNewBall.key = UniqueKey();
-        break;
-      case 18000:
-        nextNewBall.color = Colors.greenAccent.shade700;
-        nextNewBall.speed = 17000;
-        nextNewBall.key = UniqueKey();
-        break;
-      case 17000:
-        nextNewBall.color = Colors.blue.shade400;
-        nextNewBall.speed = 16000;
-        nextNewBall.key = UniqueKey();
-        Color(0xff00c853);
-        break;
-      case 16000:
-        nextNewBall.color = Colors.deepPurple.shade400;
-        nextNewBall.speed = 15000;
-        nextNewBall.key = UniqueKey();
-        break;
       case 15000:
-        nextNewBall.color = Colors.pink.shade300;
+        nextNewBall.color = Colors.orangeAccent.shade700;
         nextNewBall.speed = 14000;
         nextNewBall.key = UniqueKey();
         break;
       case 14000:
+        nextNewBall.color = Colors.yellow;
+        nextNewBall.speed = 13000;
+        nextNewBall.key = UniqueKey();
+        break;
+      case 13000:
+        nextNewBall.color = Colors.greenAccent.shade700;
+        nextNewBall.speed = 12000;
+        nextNewBall.key = UniqueKey();
+        break;
+      case 12000:
+        nextNewBall.color = Colors.blue.shade400;
+        nextNewBall.speed = 11000;
+        nextNewBall.key = UniqueKey();
+        Color(0xff00c853);
+        break;
+      case 11000:
+        nextNewBall.color = Colors.deepPurple.shade400;
+        nextNewBall.speed = 10000;
+        nextNewBall.key = UniqueKey();
+        break;
+      case 10000:
+        nextNewBall.color = Colors.pink.shade300;
+        nextNewBall.speed = 9000;
+        nextNewBall.key = UniqueKey();
+        break;
+      case 9000:
         nextNewBall.color = Colors.red;
-        nextNewBall.speed = 20000;
+        nextNewBall.speed = 15000;
         nextNewBall.key = UniqueKey();
         break;
       default:
         nextNewBall.color = Colors.red;
-        nextNewBall.speed = 20000;
+        nextNewBall.speed = 15000;
         nextNewBall.key = UniqueKey();
     }
   }
@@ -251,7 +251,7 @@ class _BoardState extends State<Board> {
 
       nextNewBall = BallClass(
         color: Colors.red,
-        speed: 20000,
+        speed: 15000,
         key: UniqueKey(),
       );
 

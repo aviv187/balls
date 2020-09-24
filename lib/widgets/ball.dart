@@ -73,9 +73,9 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
 
     //make the balls move at the same speed, no matter the screen size
     Offset p1 = Offset(widget.path[0].dx / widget.screenSize.width,
-        widget.path[0].dy / (widget.screenSize.height * 0.9));
+        widget.path[0].dy / (widget.screenSize.height * 0.5));
     Offset p2 = Offset(widget.path[1].dx / widget.screenSize.width,
-        widget.path[1].dy / (widget.screenSize.height * 0.9));
+        widget.path[1].dy / (widget.screenSize.height * 0.5));
 
     Path path = pathBuild(p1, p2);
     PathMetrics pathMetrics = path.computeMetrics();
