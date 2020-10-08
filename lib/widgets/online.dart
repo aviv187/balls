@@ -70,11 +70,9 @@ class _OnlineState extends State<Online> {
     gameListener = gameRef.onChildRemoved.listen((Event event) {
       if (event.snapshot.key == 'player$playerNumber') {
         widget.isLoser(true);
-        // print('loser');
         gameListener?.cancel();
       } else {
         widget.isLoser(false);
-        // print('winner');
         gameListener?.cancel();
       }
     });
@@ -87,7 +85,7 @@ class _OnlineState extends State<Online> {
 
   Future<void> _signIn() async {
     try {
-      AuthResult response = await FirebaseAuth.instance.signInAnonymously();
+      UserCredential response = await FirebaseAuth.instance.signInAnonymously();
       uid = response.user.uid;
 
       dbRef = FirebaseDatabase.instance.reference();
@@ -133,8 +131,6 @@ class _OnlineState extends State<Online> {
 
     _updateGame(gameId, playerNumber);
     dbRef.child('users/public/$player').update({'gameId': gameId});
-    // TODO: if player wait more than X seconds in game node, delete and start over
-    print('player: $player');
   }
 
   int _generateUniqueGameId(int length) {
@@ -162,14 +158,12 @@ class _OnlineState extends State<Online> {
     });
 
     userListener = userRef.onChildAdded.listen((Event event) {
-      print('child added: ${event.snapshot.key}');
       if (event.snapshot.key == 'gameId') {
         gameId = event.snapshot.value;
         _updateGame(gameId, playerNumber);
 
         userListener.cancel();
         userRef.remove();
-        print('I was changed. ${event.snapshot.key} = ${event.snapshot.value}');
 
         makeUnavailablehandler.cancel();
         if (pophandler != null) {
