@@ -55,6 +55,7 @@ class _OnlineState extends State<Online> {
     gameStartListener?.cancel();
     _makeUnavailable(uid);
     _endGame();
+    _checkOtherGameOver();
     super.dispose();
   }
 
@@ -102,12 +103,41 @@ class _OnlineState extends State<Online> {
   }
 
   void _endGame() {
+    if (gameRef == null) {
+      return;
+    }
+
     gameRef?.update({'player$playerNumber': null});
+
+    int otherPlayerNumber = playerNumber == 1 ? 2 : 1;
+    gameRef
+        .child('player$otherPlayerNumber')
+        .once()
+        .then((DataSnapshot snapshot) {
+      if (snapshot.value == null) {
+        gameRef?.remove();
+      }
+    });
+  }
+
+  void _checkOtherGameOver() {
+    dbRef.child('games').once().then((DataSnapshot snapshot) {
+      int timeNow = DateTime.now().millisecondsSinceEpoch;
+
+      if (snapshot.value != null) {
+        snapshot.value.forEach((key, value) {
+          if (value['entered'] < timeNow - 1800000) {
+            dbRef.child('games/$key').remove();
+          }
+        });
+      }
+    });
   }
 
   void _updateGame(gameId, playerNumber) {
     gameRef = dbRef.child('games/$gameId');
     gameRef.update({'player$playerNumber': uid});
+    gameRef.update({'entered': DateTime.now().millisecondsSinceEpoch});
 
     gameListener = gameRef.onChildRemoved.listen((Event event) {
       if (event.snapshot.key == 'player$playerNumber') {
@@ -120,9 +150,11 @@ class _OnlineState extends State<Online> {
     });
 
     gameStartListener = gameRef.onChildAdded.listen((event) {
-      int boardNum = gameId.toInt() % makeBoardFunctions.length;
+      if (event.snapshot.key == 'player$playerNumber') {
+        int boardNum = gameId.toInt() % makeBoardFunctions.length;
 
-      widget.onReady(boardNum);
+        widget.onReady(boardNum);
+      }
     });
   }
 
@@ -131,7 +163,6 @@ class _OnlineState extends State<Online> {
 
     _updateGame(gameId, playerNumber);
     dbRef.child('users/public/$player').update({'gameId': gameId});
-    print('player: $player');
   }
 
   int _generateUniqueGameId(int length) {
@@ -159,14 +190,12 @@ class _OnlineState extends State<Online> {
     });
 
     userListener = userRef.onChildAdded.listen((Event event) {
-      print('child added: ${event.snapshot.key}');
       if (event.snapshot.key == 'gameId') {
         gameId = event.snapshot.value;
         _updateGame(gameId, playerNumber);
 
         userListener.cancel();
         userRef.remove();
-        print('I was changed. ${event.snapshot.key} = ${event.snapshot.value}');
 
         makeUnavailablehandler.cancel();
         if (pophandler != null) {

@@ -16,7 +16,6 @@ class _ScorePageState extends State<ScorePage> {
 
   void _getYourScoreboard() async {
     List<Map> list = await DatabaseHelper.instance.queryAll();
-    // print(list);
     setState(() => yourScoreList = list);
   }
 
@@ -82,7 +81,7 @@ class ScoreListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        SizedBox(height: 70),
+        SizedBox(height: 40),
         Text(
           listName,
           style: TextStyle(
