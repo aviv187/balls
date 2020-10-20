@@ -8,12 +8,20 @@ import 'package:flutter/material.dart';
 import '../helpFunction/boardCreatePath.dart';
 
 class Online extends StatefulWidget {
-  Online({Key key, this.onReady, this.screenSize, this.gameOver, this.isLoser});
+  Online({
+    Key key,
+    this.onReady,
+    this.screenSize,
+    this.gameOver,
+    this.isLoser,
+    this.playerTime,
+  });
 
   final Function onReady;
   final Function isLoser;
   final Size screenSize;
   final bool gameOver;
+  final String playerTime;
 
   @override
   _OnlineState createState() => _OnlineState();
@@ -22,15 +30,19 @@ class Online extends StatefulWidget {
 class _OnlineState extends State<Online> {
   int gameId;
   int playerNumber;
+  int otherPlayerNumber;
 
   DatabaseReference userRef;
   DatabaseReference dbRef;
   DatabaseReference gameRef;
   var userListener;
   var gameListener;
-  var gameStartListener;
 
   String uid;
+
+  Timer makeUnavailablehandler;
+  Timer checkWinTimer;
+  Timer waitForResponTimer;
 
   @override
   void initState() {
@@ -52,10 +64,12 @@ class _OnlineState extends State<Online> {
   void dispose() {
     userListener?.cancel();
     gameListener?.cancel();
-    gameStartListener?.cancel();
     _makeUnavailable(uid);
     _endGame();
     _checkOtherGameOver();
+    makeUnavailablehandler?.cancel();
+    checkWinTimer?.cancel();
+    waitForResponTimer?.cancel();
     super.dispose();
   }
 
@@ -97,29 +111,57 @@ class _OnlineState extends State<Online> {
         _addPlayerToWaitingList(uid);
       } else {
         playerNumber = 1;
+        otherPlayerNumber = 2;
         _createGame(player, playerNumber);
       }
     });
   }
 
-  void _endGame() {
-    if (gameRef == null) {
-      return;
+  void checkBestTime(String otherPlayerTime) {
+    if (otherPlayerTime.compareTo(widget.playerTime) == -1) {
+      widget.isLoser(false);
+      gameListener?.cancel();
+    } else {
+      widget.isLoser(true);
+      gameListener?.cancel();
     }
-
-    gameRef?.update({'player$playerNumber': null});
-
-    int otherPlayerNumber = playerNumber == 1 ? 2 : 1;
-    gameRef
-        .child('player$otherPlayerNumber')
-        .once()
-        .then((DataSnapshot snapshot) {
-      if (snapshot.value == null) {
-        gameRef?.remove();
-      }
-    });
   }
 
+  void _endGame() {
+    if (gameRef != null) {
+      //check other player has allready finished, and if you won
+      gameRef
+          .child('player${otherPlayerNumber}Time')
+          .once()
+          .then((DataSnapshot snapshot) {
+        if (snapshot.value != null) {
+          checkBestTime(snapshot.value);
+        }
+      });
+
+      // update my status on firebase
+      gameRef.update({'player${playerNumber}Time': widget.playerTime});
+      gameRef.update({'player$playerNumber': null});
+
+      //if player doesnt respond you are the winner
+      waitForResponTimer = Timer(Duration(seconds: 10), () {
+        widget.isLoser(false);
+        gameListener?.cancel();
+      });
+
+      // delete game from firebase
+      gameRef
+          .child('player$otherPlayerNumber')
+          .once()
+          .then((DataSnapshot snapshot) {
+        if (snapshot.value == null) {
+          gameRef?.remove();
+        }
+      });
+    }
+  }
+
+  //dalete games from firebase that might stay there by mistake
   void _checkOtherGameOver() {
     dbRef.child('games').once().then((DataSnapshot snapshot) {
       int timeNow = DateTime.now().millisecondsSinceEpoch;
@@ -139,45 +181,45 @@ class _OnlineState extends State<Online> {
     gameRef.update({'player$playerNumber': uid});
     gameRef.update({'entered': DateTime.now().millisecondsSinceEpoch});
 
-    gameListener = gameRef.onChildRemoved.listen((Event event) {
-      if (event.snapshot.key == 'player$playerNumber') {
-        widget.isLoser(true);
-        gameListener?.cancel();
-      } else {
-        widget.isLoser(false);
-        gameListener?.cancel();
-      }
-    });
-
-    gameStartListener = gameRef.onChildAdded.listen((event) {
+    gameListener = gameRef.onChildAdded.listen((event) {
+      //start the game
       if (event.snapshot.key == 'player$playerNumber') {
         int boardNum = gameId.toInt() % makeBoardFunctions.length;
 
         widget.onReady(boardNum);
       }
+
+      //give your time to the other player if he lost
+      if (event.snapshot.key == 'player${otherPlayerNumber}Time' &&
+          !widget.gameOver) {
+        checkWinTimer = Timer(Duration(seconds: 5), () {
+          gameRef.update({'player${playerNumber}Time': widget.playerTime});
+        });
+      } else if (event.snapshot.key == 'player${otherPlayerNumber}Time' &&
+          widget.gameOver) {
+        waitForResponTimer?.cancel();
+        checkBestTime(event.snapshot.value);
+      }
     });
   }
 
   void _createGame(player, playerNumber) {
-    gameId = _generateUniqueGameId(16);
+    Random rand = new Random();
+    gameId = rand.nextInt(1000000);
 
     _updateGame(gameId, playerNumber);
     dbRef.child('users/public/$player').update({'gameId': gameId});
   }
 
-  int _generateUniqueGameId(int length) {
-    Random rand = new Random();
-    return rand.nextInt(1000000);
-  }
-
   void _addPlayerToWaitingList(uid) {
     playerNumber = 2;
+    otherPlayerNumber = 1;
 
     userRef = dbRef.child('users/public/$uid');
     userRef.update({'entered': DateTime.now().millisecondsSinceEpoch});
 
     Timer pophandler;
-    Timer makeUnavailablehandler = Timer(Duration(minutes: 1), () {
+    makeUnavailablehandler = Timer(Duration(minutes: 1), () {
       _makeUnavailable(uid);
       Scaffold.of(context).showSnackBar(
         SnackBar(

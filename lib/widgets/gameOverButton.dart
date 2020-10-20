@@ -87,7 +87,11 @@ class _GameOverButtonState extends State<GameOverButton> {
           children: <Widget>[
             SizedBox(height: 80),
             Text(
-              widget.online ? (widget.loser ? 'Loser' : 'Winner') : 'Game Over',
+              !widget.online
+                  ? 'Game Over'
+                  : (widget.loser == null)
+                      ? ''
+                      : (widget.loser ? 'Loser' : 'Winner'),
               style: TextStyle(
                 fontSize: 50,
                 fontWeight: FontWeight.bold,

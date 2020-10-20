@@ -34,7 +34,7 @@ class _BoardState extends State<Board> {
   List<List<List<Offset>>> crossesPaths = [];
 
   bool gameOver = false;
-  bool loser = true;
+  bool isLoser;
 
   List<BallClass> balls = [];
   List<BallClass> dropBalls = [];
@@ -42,7 +42,7 @@ class _BoardState extends State<Board> {
   // first draganle ball
   BallClass nextNewBall = BallClass(
     color: Colors.red,
-    speed: 15000,
+    speed: 10000,
     key: UniqueKey(),
   );
 
@@ -160,38 +160,38 @@ class _BoardState extends State<Board> {
     droped = true;
 
     switch (speed) {
-      case 15000:
-        nextNewBall.color = Colors.orangeAccent.shade700;
-        nextNewBall.speed = 14000;
-        nextNewBall.key = UniqueKey();
-        break;
-      case 14000:
-        nextNewBall.color = Colors.yellow;
-        nextNewBall.speed = 13000;
-        nextNewBall.key = UniqueKey();
-        break;
-      case 13000:
-        nextNewBall.color = Colors.greenAccent.shade700;
-        nextNewBall.speed = 12000;
-        nextNewBall.key = UniqueKey();
-        break;
-      case 12000:
-        nextNewBall.color = Colors.blue.shade400;
-        nextNewBall.speed = 11000;
-        nextNewBall.key = UniqueKey();
-        Color(0xff00c853);
-        break;
-      case 11000:
-        nextNewBall.color = Colors.deepPurple.shade400;
-        nextNewBall.speed = 10000;
-        nextNewBall.key = UniqueKey();
-        break;
       case 10000:
-        nextNewBall.color = Colors.pink.shade300;
+        nextNewBall.color = Colors.orangeAccent.shade700;
+        nextNewBall.speed = 9500;
+        nextNewBall.key = UniqueKey();
+        break;
+      case 9500:
+        nextNewBall.color = Colors.yellow;
         nextNewBall.speed = 9000;
         nextNewBall.key = UniqueKey();
         break;
       case 9000:
+        nextNewBall.color = Colors.greenAccent.shade700;
+        nextNewBall.speed = 8500;
+        nextNewBall.key = UniqueKey();
+        break;
+      case 8500:
+        nextNewBall.color = Colors.blue.shade400;
+        nextNewBall.speed = 8000;
+        nextNewBall.key = UniqueKey();
+        Color(0xff00c853);
+        break;
+      case 8000:
+        nextNewBall.color = Colors.deepPurple.shade400;
+        nextNewBall.speed = 7500;
+        nextNewBall.key = UniqueKey();
+        break;
+      case 7500:
+        nextNewBall.color = Colors.pink.shade300;
+        nextNewBall.speed = 7000;
+        nextNewBall.key = UniqueKey();
+        break;
+      case 7000:
         nextNewBall.color = Colors.red;
         nextNewBall.speed = 15000;
         nextNewBall.key = UniqueKey();
@@ -251,7 +251,7 @@ class _BoardState extends State<Board> {
 
       nextNewBall = BallClass(
         color: Colors.red,
-        speed: 15000,
+        speed: 10000,
         key: UniqueKey(),
       );
 
@@ -311,9 +311,10 @@ class _BoardState extends State<Board> {
                     gameOver: gameOver,
                     isLoser: (bool didlose) {
                       setState(() {
-                        loser = didlose;
+                        isLoser = didlose;
                       });
                     },
+                    playerTime: gameStopwatch,
                   )
                 : Container(),
           ]),
@@ -438,7 +439,7 @@ class _BoardState extends State<Board> {
                         restartGame: restartGame,
                         gameEndTime: gameStopwatch,
                         online: widget.online,
-                        loser: loser,
+                        loser: isLoser,
                       )
                     : Container(),
                 //draw the game timer
