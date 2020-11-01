@@ -90,7 +90,7 @@ class _GameOverButtonState extends State<GameOverButton> {
               !widget.online
                   ? 'Game Over'
                   : (widget.loser == null)
-                      ? ''
+                      ? 'some animation'
                       : (widget.loser ? 'Loser' : 'Winner'),
               style: TextStyle(
                 fontSize: 50,

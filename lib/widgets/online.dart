@@ -15,13 +15,19 @@ class Online extends StatefulWidget {
     this.gameOver,
     this.isLoser,
     this.playerTime,
+    this.playWithFriends = false,
+    this.boardNumber,
+    this.gameCode,
   });
 
   final Function onReady;
   final Function isLoser;
   final Size screenSize;
   final bool gameOver;
+  final bool playWithFriends;
   final String playerTime;
+  final String gameCode;
+  final int boardNumber;
 
   @override
   _OnlineState createState() => _OnlineState();
@@ -31,6 +37,7 @@ class _OnlineState extends State<Online> {
   int gameId;
   int playerNumber;
   int otherPlayerNumber;
+  int boardNum;
 
   DatabaseReference userRef;
   DatabaseReference dbRef;
@@ -79,10 +86,58 @@ class _OnlineState extends State<Online> {
       uid = response.user.uid;
 
       dbRef = FirebaseDatabase.instance.reference();
-      _lookForPlayers(uid);
+      if (widget.playWithFriends) {
+        if (widget.boardNumber == null) {
+          _lookForFriend(uid);
+        } else {
+          boardNum = widget.boardNumber;
+          _addPlayerToWaitingList(uid);
+        }
+      } else {
+        _lookForPlayers(uid);
+      }
     } catch (e) {
       print(e);
     }
+  }
+
+  void _lookForFriend(uid) {
+    dbRef
+        .child('users/custom')
+        .orderByChild('entered')
+        .once()
+        .then((DataSnapshot snapshot) {
+      String player;
+
+      if (snapshot.value != null) {
+        snapshot.value.forEach((key, value) {
+          int waitTimeMiliSec =
+              DateTime.now().millisecondsSinceEpoch - value['entered'];
+          if (key == uid || waitTimeMiliSec > 60000) {
+            _makeUnavailable(key);
+          } else {
+            if (player == null) {
+              player = key;
+            }
+          }
+        });
+      }
+
+      if (player == null) {
+        Scaffold.of(context).showSnackBar(
+          SnackBar(
+            content: Text('sorry, we could not find your friend'),
+          ),
+        );
+        Timer(Duration(seconds: 2), () {
+          Navigator.pop(context);
+        });
+      } else {
+        playerNumber = 1;
+        otherPlayerNumber = 2;
+        _createGame(player, playerNumber);
+      }
+    });
   }
 
   void _lookForPlayers(uid) {
@@ -184,7 +239,9 @@ class _OnlineState extends State<Online> {
     gameListener = gameRef.onChildAdded.listen((event) {
       //start the game
       if (event.snapshot.key == 'player$playerNumber') {
-        int boardNum = gameId.toInt() % makeBoardFunctions.length;
+        if (boardNum == null) {
+          boardNum = gameId.toInt() % makeBoardFunctions.length;
+        }
 
         widget.onReady(boardNum);
       }
@@ -208,15 +265,23 @@ class _OnlineState extends State<Online> {
     gameId = rand.nextInt(1000000);
 
     _updateGame(gameId, playerNumber);
-    dbRef.child('users/public/$player').update({'gameId': gameId});
+    dbRef
+        .child(widget.playWithFriends
+            ? 'users/custom/$player'
+            : 'users/public/$player')
+        .update({'gameId': gameId});
   }
 
   void _addPlayerToWaitingList(uid) {
     playerNumber = 2;
     otherPlayerNumber = 1;
 
-    userRef = dbRef.child('users/public/$uid');
+    userRef = dbRef.child(
+        widget.playWithFriends ? 'users/custom/$uid' : 'users/public/$uid');
     userRef.update({'entered': DateTime.now().millisecondsSinceEpoch});
+    if (widget.playWithFriends) {
+      userRef.update({'BoardNum': widget.boardNumber});
+    }
 
     Timer pophandler;
     makeUnavailablehandler = Timer(Duration(minutes: 1), () {
@@ -248,7 +313,11 @@ class _OnlineState extends State<Online> {
   }
 
   void _makeUnavailable(uid) {
-    dbRef.child('users').child('public').child(uid).remove();
+    dbRef
+        .child('users')
+        .child(widget.playWithFriends ? 'custom' : 'public')
+        .child(uid)
+        .remove();
   }
 
   @override

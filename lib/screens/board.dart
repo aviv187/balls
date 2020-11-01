@@ -17,12 +17,14 @@ class Board extends StatefulWidget {
   final int heroTag;
   final Size screenSize;
   final bool online;
+  final bool playWithFriends;
 
   Board({
     this.boardNum,
     this.heroTag = 1,
     this.screenSize,
     this.online = false,
+    this.playWithFriends = false,
   });
 
   @override
@@ -283,7 +285,7 @@ class _BoardState extends State<Board> {
 
   @override
   Widget build(BuildContext context) {
-    if (enterPaths.isEmpty && widget.boardNum != null) {
+    if (enterPaths.isEmpty && widget.boardNum != null && !widget.online) {
       makeBoard(widget.boardNum);
       startGameTimer();
       newBallTimer(_newBallTime);
@@ -315,6 +317,8 @@ class _BoardState extends State<Board> {
                       });
                     },
                     playerTime: gameStopwatch,
+                    playWithFriends: widget.playWithFriends,
+                    boardNumber: widget.boardNum,
                   )
                 : Container(),
           ]),

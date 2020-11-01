@@ -3,14 +3,15 @@ import 'package:flutter/services.dart';
 
 import './chooseBoard.dart';
 import './board.dart';
-import './goinCreateGamePage.dart';
 import '../helpFunction/changePageBuilder.dart';
 
-class ChooseGame extends StatelessWidget {
+class GoinCreatePage extends StatelessWidget {
+  final Size screenSize;
+
+  GoinCreatePage(this.screenSize);
+
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
-
     return Scaffold(
         appBar: AppBar(
           title: Text('Balls'),
@@ -24,17 +25,20 @@ class ChooseGame extends StatelessWidget {
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           children: <Widget>[
-            TileWidget('Play', ChooseBoard(screenSize: screenSize)),
             TileWidget(
-              'Play Online',
+                'Create Game',
+                ChooseBoard(
+                  screenSize: screenSize,
+                  online: true,
+                  playWithFriends: true,
+                )),
+            TileWidget(
+              'Goin Game',
               Board(
                 screenSize: screenSize,
                 online: true,
+                playWithFriends: true,
               ),
-            ),
-            TileWidget(
-              'Play with friends',
-              GoinCreatePage(screenSize),
             ),
           ],
         ));

@@ -8,8 +8,14 @@ import '../helpFunction/changePageBuilder.dart';
 
 class ChooseBoard extends StatelessWidget {
   final Size screenSize;
+  final bool playWithFriends;
+  final bool online;
 
-  ChooseBoard(this.screenSize);
+  ChooseBoard({
+    this.screenSize,
+    this.playWithFriends = false,
+    this.online = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +71,8 @@ class ChooseBoard extends StatelessWidget {
                               makeBoardFunctions.indexOf(createBoardFunction),
                           heroTag: createBoardFunction.hashCode,
                           screenSize: screenSize,
+                          online: online,
+                          playWithFriends: playWithFriends,
                         ),
                       ),
                     );
