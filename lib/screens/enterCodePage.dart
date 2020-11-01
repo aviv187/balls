@@ -70,6 +70,7 @@ class EnterCodePage extends StatelessWidget {
                           ),
                         ),
                       );
+                      _textEditingController.text = '';
                     } else {
                       Scaffold.of(context).showSnackBar(
                         SnackBar(
