@@ -18,6 +18,7 @@ class Online extends StatefulWidget {
     this.playWithFriends = false,
     this.boardNumber,
     this.gameCode,
+    this.codeFromPlayer,
   });
 
   final Function onReady;
@@ -27,6 +28,7 @@ class Online extends StatefulWidget {
   final bool playWithFriends;
   final String playerTime;
   final String gameCode;
+  final String codeFromPlayer;
   final int boardNumber;
 
   @override
@@ -50,6 +52,7 @@ class _OnlineState extends State<Online> {
   Timer makeUnavailablehandler;
   Timer checkWinTimer;
   Timer waitForResponTimer;
+  Timer snackBarTimer;
 
   @override
   void initState() {
@@ -77,6 +80,7 @@ class _OnlineState extends State<Online> {
     makeUnavailablehandler?.cancel();
     checkWinTimer?.cancel();
     waitForResponTimer?.cancel();
+    snackBarTimer?.cancel();
     super.dispose();
   }
 
@@ -116,7 +120,8 @@ class _OnlineState extends State<Online> {
           if (key == uid || waitTimeMiliSec > 60000) {
             _makeUnavailable(key);
           } else {
-            if (player == null) {
+            if (widget.codeFromPlayer == value['gameCode']) {
+              boardNum = value['BoardNum'];
               player = key;
             }
           }
@@ -129,13 +134,16 @@ class _OnlineState extends State<Online> {
             content: Text('sorry, we could not find your friend'),
           ),
         );
-        Timer(Duration(seconds: 2), () {
+        snackBarTimer = Timer(Duration(seconds: 2), () {
           Navigator.pop(context);
         });
       } else {
         playerNumber = 1;
         otherPlayerNumber = 2;
-        _createGame(player, playerNumber);
+        _createGame(
+          player: player,
+          playerNumber: playerNumber,
+        );
       }
     });
   }
@@ -167,7 +175,7 @@ class _OnlineState extends State<Online> {
       } else {
         playerNumber = 1;
         otherPlayerNumber = 2;
-        _createGame(player, playerNumber);
+        _createGame(player: player, playerNumber: playerNumber);
       }
     });
   }
@@ -223,7 +231,11 @@ class _OnlineState extends State<Online> {
 
       if (snapshot.value != null) {
         snapshot.value.forEach((key, value) {
-          if (value['entered'] < timeNow - 1800000) {
+          if (value['entered'] != null) {
+            if (value['entered'] < timeNow - 1800000) {
+              dbRef.child('games/$key').remove();
+            }
+          } else {
             dbRef.child('games/$key').remove();
           }
         });
@@ -260,9 +272,9 @@ class _OnlineState extends State<Online> {
     });
   }
 
-  void _createGame(player, playerNumber) {
+  void _createGame({player, playerNumber}) {
     Random rand = new Random();
-    gameId = rand.nextInt(1000000);
+    gameId = rand.nextInt(99999999);
 
     _updateGame(gameId, playerNumber);
     dbRef
@@ -281,9 +293,9 @@ class _OnlineState extends State<Online> {
     userRef.update({'entered': DateTime.now().millisecondsSinceEpoch});
     if (widget.playWithFriends) {
       userRef.update({'BoardNum': widget.boardNumber});
+      userRef.update({'gameCode': widget.gameCode});
     }
 
-    Timer pophandler;
     makeUnavailablehandler = Timer(Duration(minutes: 1), () {
       _makeUnavailable(uid);
       Scaffold.of(context).showSnackBar(
@@ -291,7 +303,7 @@ class _OnlineState extends State<Online> {
           content: Text('sorry, we could not find another player'),
         ),
       );
-      pophandler = Timer(Duration(seconds: 2), () {
+      snackBarTimer = Timer(Duration(seconds: 2), () {
         Navigator.pop(context);
       });
     });
@@ -305,8 +317,8 @@ class _OnlineState extends State<Online> {
         userRef.remove();
 
         makeUnavailablehandler.cancel();
-        if (pophandler != null) {
-          pophandler.cancel();
+        if (snackBarTimer != null) {
+          snackBarTimer.cancel();
         }
       }
     });

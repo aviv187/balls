@@ -86,17 +86,21 @@ class _GameOverButtonState extends State<GameOverButton> {
         child: Column(
           children: <Widget>[
             SizedBox(height: 80),
-            Text(
-              !widget.online
-                  ? 'Game Over'
+            Container(
+              child: !widget.online
+                  ? GameOverText('Game Over')
                   : (widget.loser == null)
-                      ? 'some animation'
-                      : (widget.loser ? 'Loser' : 'Winner'),
-              style: TextStyle(
-                fontSize: 50,
-                fontWeight: FontWeight.bold,
-                color: Colors.red.shade600,
-              ),
+                      ? Container(
+                          height: 100,
+                          width: 100,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 10,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.red),
+                          ))
+                      : (widget.loser
+                          ? GameOverText('Loser')
+                          : GameOverText('Winner')),
             ),
             SizedBox(height: 20),
             FlatButton(
@@ -170,6 +174,24 @@ class _GameOverButtonState extends State<GameOverButton> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class GameOverText extends StatelessWidget {
+  final String text;
+
+  GameOverText(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 50,
+        fontWeight: FontWeight.bold,
+        color: Colors.red.shade600,
       ),
     );
   }

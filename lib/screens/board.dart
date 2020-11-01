@@ -18,6 +18,7 @@ class Board extends StatefulWidget {
   final Size screenSize;
   final bool online;
   final bool playWithFriends;
+  final String codeFromPlayer;
 
   Board({
     this.boardNum,
@@ -25,6 +26,7 @@ class Board extends StatefulWidget {
     this.screenSize,
     this.online = false,
     this.playWithFriends = false,
+    this.codeFromPlayer,
   });
 
   @override
@@ -61,6 +63,9 @@ class _BoardState extends State<Board> {
   // game timer
   Timer timer3;
   String gameStopwatch = '00:00:00';
+
+  // code for you if ypu create a game with firnds
+  String gameCode;
 
   MyDraggableController<BallClass> draggableController;
 
@@ -270,8 +275,6 @@ class _BoardState extends State<Board> {
     });
   }
 
-  void updateTime() {}
-
   void makeBoard(int boardNum) {
     Function createBoardFunction = makeBoardFunctions[boardNum];
 
@@ -289,6 +292,12 @@ class _BoardState extends State<Board> {
       makeBoard(widget.boardNum);
       startGameTimer();
       newBallTimer(_newBallTime);
+    }
+
+    if (widget.boardNum != null && widget.online && gameCode == null) {
+      String uniqueKey = UniqueKey().toString();
+      gameCode = uniqueKey.substring(2, uniqueKey.length - 1);
+      print(gameCode);
     }
 
     return Scaffold(
@@ -319,18 +328,29 @@ class _BoardState extends State<Board> {
                     playerTime: gameStopwatch,
                     playWithFriends: widget.playWithFriends,
                     boardNumber: widget.boardNum,
-                  )
+                    gameCode: gameCode,
+                    codeFromPlayer: widget.codeFromPlayer)
                 : Container(),
           ]),
       body: enterPaths.isEmpty
           ? Center(
-              child: Container(
-                  height: widget.screenSize.width - 100,
-                  width: widget.screenSize.width - 100,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 10,
-                  )),
-            )
+              child: Column(
+              children: [
+                SizedBox(
+                  height: 150,
+                ),
+                Container(
+                    height: widget.screenSize.width - 100,
+                    width: widget.screenSize.width - 100,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 10,
+                    )),
+                SizedBox(
+                  height: 100,
+                ),
+                if (gameCode != null) Text('Your Code\n$gameCode'),
+              ],
+            ))
           : Stack(
               children: <Widget>[
                 // draw all paths

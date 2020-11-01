@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import './chooseBoard.dart';
 import './board.dart';
 import '../helpFunction/changePageBuilder.dart';
+import './enterCodePage.dart';
 
 class GoinCreatePage extends StatelessWidget {
   final Size screenSize;
@@ -34,11 +35,7 @@ class GoinCreatePage extends StatelessWidget {
                 )),
             TileWidget(
               'Goin Game',
-              Board(
-                screenSize: screenSize,
-                online: true,
-                playWithFriends: true,
-              ),
+              EnterCodePage(screenSize),
             ),
           ],
         ));
