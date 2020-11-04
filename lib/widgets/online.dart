@@ -184,7 +184,7 @@ class _OnlineState extends State<Online> {
     if (otherPlayerTime.compareTo(widget.playerTime) == -1) {
       widget.isLoser(false);
       gameListener?.cancel();
-    } else {
+    } else if (widget.gameOver) {
       widget.isLoser(true);
       gameListener?.cancel();
     }
@@ -261,9 +261,15 @@ class _OnlineState extends State<Online> {
       //give your time to the other player if he lost
       if (event.snapshot.key == 'player${otherPlayerNumber}Time' &&
           !widget.gameOver) {
-        checkWinTimer = Timer(Duration(seconds: 5), () {
-          gameRef.update({'player${playerNumber}Time': widget.playerTime});
-        });
+        checkWinTimer = Timer.periodic(
+          Duration(seconds: 1),
+          (Timer timer) {
+            if (event.snapshot.value.compareTo(widget.playerTime) == -1) {
+              gameRef.update({'player${playerNumber}Time': widget.playerTime});
+              timer.cancel();
+            }
+          },
+        );
       } else if (event.snapshot.key == 'player${otherPlayerNumber}Time' &&
           widget.gameOver) {
         waitForResponTimer?.cancel();
