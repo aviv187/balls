@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 
 import './scorePage.dart';
 import '../helpFunction/changePageBuilder.dart';
-import './chooseGame.dart';
+import './goinCreateGamePage.dart';
+import './chooseBoard.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -43,7 +44,7 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   FadeRoute(
-                    page: ChooseGame(),
+                    page: ChooseBoard(),
                   ),
                 );
               },
@@ -57,6 +58,36 @@ class HomePage extends StatelessWidget {
                 width: 280,
                 decoration: BoxDecoration(
                   color: Colors.amber[400],
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                ),
+                child: Center(
+                    child: Text(
+                  'Play Online',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                  ),
+                )),
+              ),
+              onPressed: () {
+                HapticFeedback.heavyImpact();
+                Navigator.push(
+                  context,
+                  FadeRoute(
+                    page: GoinCreatePage(),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: 30),
+            FlatButton(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              child: Container(
+                height: 80,
+                width: 280,
+                decoration: BoxDecoration(
+                  color: Colors.deepOrange[400],
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
                 ),
                 child: Center(
@@ -76,30 +107,6 @@ class HomePage extends StatelessWidget {
                     page: ScorePage(),
                   ),
                 );
-              },
-            ),
-            SizedBox(height: 30),
-            FlatButton(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              child: Container(
-                height: 80,
-                width: 280,
-                decoration: BoxDecoration(
-                  color: Colors.deepOrange[400],
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                ),
-                child: Center(
-                    child: Text(
-                  'Options',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                  ),
-                )),
-              ),
-              onPressed: () {
-                HapticFeedback.heavyImpact();
               },
             ),
           ],

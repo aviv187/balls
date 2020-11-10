@@ -184,9 +184,11 @@ class _OnlineState extends State<Online> {
     if (otherPlayerTime.compareTo(widget.playerTime) == -1) {
       widget.isLoser(false);
       gameListener?.cancel();
+      waitForResponTimer.cancel();
     } else if (widget.gameOver) {
       widget.isLoser(true);
       gameListener?.cancel();
+      waitForResponTimer.cancel();
     }
   }
 
@@ -272,7 +274,6 @@ class _OnlineState extends State<Online> {
         );
       } else if (event.snapshot.key == 'player${otherPlayerNumber}Time' &&
           widget.gameOver) {
-        waitForResponTimer?.cancel();
         checkBestTime(event.snapshot.value);
       }
     });

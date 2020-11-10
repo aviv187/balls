@@ -7,12 +7,10 @@ import '../helpFunction/changePageBuilder.dart';
 import './enterCodePage.dart';
 
 class GoinCreatePage extends StatelessWidget {
-  final Size screenSize;
-
-  GoinCreatePage(this.screenSize);
-
   @override
   Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
         appBar: AppBar(
           title: Text('Balls'),
@@ -36,6 +34,13 @@ class GoinCreatePage extends StatelessWidget {
             TileWidget(
               'Goin Game',
               EnterCodePage(screenSize),
+            ),
+            TileWidget(
+              'Random Game',
+              Board(
+                screenSize: screenSize,
+                online: true,
+              ),
             ),
           ],
         ));
