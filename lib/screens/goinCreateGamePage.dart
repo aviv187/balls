@@ -36,7 +36,7 @@ class GoinCreatePage extends StatelessWidget {
                   playWithFriends: true,
                 )),
             TileWidget(
-              'Goin Game',
+              'Join Game',
               EnterCodePage(screenSize),
             ),
             TileWidget(
