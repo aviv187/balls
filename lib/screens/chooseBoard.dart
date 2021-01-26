@@ -12,7 +12,7 @@ class ChooseBoard extends StatelessWidget {
   final bool online;
 
   ChooseBoard({
-    this.screenSize,
+    @required this.screenSize,
     this.playWithFriends = false,
     this.online = false,
   });

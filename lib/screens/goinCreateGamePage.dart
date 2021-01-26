@@ -7,10 +7,14 @@ import '../helpFunction/changePageBuilder.dart';
 import './enterCodePage.dart';
 
 class GoinCreatePage extends StatelessWidget {
+  final Size screenSize;
+
+  GoinCreatePage({
+    @required this.screenSize,
+  });
+
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
-
     return Scaffold(
         appBar: AppBar(
           title: Text('Balls'),

@@ -37,7 +37,9 @@ class _RouteState extends State<Ball> with TickerProviderStateMixin {
     getBallDuration();
 
     _controller = AnimationController(
-        vsync: this, duration: Duration(milliseconds: _duration));
+      vsync: this,
+      duration: Duration(milliseconds: _duration),
+    );
     _animation = Tween<double>(begin: 0.0001, end: 0.9999).animate(_controller)
       ..addStatusListener((state) {
         if (state == AnimationStatus.completed) {

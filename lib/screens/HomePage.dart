@@ -9,6 +9,8 @@ import './chooseBoard.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Balls'),
@@ -44,7 +46,7 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   FadeRoute(
-                    page: ChooseBoard(),
+                    page: ChooseBoard(screenSize: screenSize),
                   ),
                 );
               },
@@ -74,7 +76,7 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   FadeRoute(
-                    page: GoinCreatePage(),
+                    page: GoinCreatePage(screenSize: screenSize),
                   ),
                 );
               },
